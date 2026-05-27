@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpDown, Filter, Search, X } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Filter, Search, X } from "lucide-react";
 import clsx from "clsx";
 import type { Student } from "@/lib/types";
 import { ProgressBar } from "@/components/progress-bar";
@@ -23,6 +23,7 @@ export function StudentRosterTable({ students }: Props) {
   const [status, setStatus] = useState<string>(ALL);
   const [enrollment, setEnrollment] = useState<string>(ALL);
   const [activity, setActivity] = useState<string>(ALL);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const cohorts = useMemo(
     () => [ALL, ...Array.from(new Set(students.map((s) => s.cohort))).sort()],
@@ -49,6 +50,15 @@ export function StudentRosterTable({ students }: Props) {
     (activity !== ALL ? 1 : 0) +
     (q.trim() !== "" ? 1 : 0);
 
+  // Secondary filters live in the "More filters" row.
+  const secondaryActive =
+    (program !== ALL ? 1 : 0) +
+    (enrollment !== ALL ? 1 : 0) +
+    (activity !== ALL ? 1 : 0);
+  // Auto-expand the secondary row if anything inside it is active —
+  // never silently hide a filter that's narrowing the list.
+  const showSecondary = moreOpen || secondaryActive > 0;
+
   const clearAll = () => {
     setQ("");
     setCohort(ALL);
@@ -56,6 +66,7 @@ export function StudentRosterTable({ students }: Props) {
     setStatus(ALL);
     setEnrollment(ALL);
     setActivity(ALL);
+    setMoreOpen(false);
   };
 
   const rows = useMemo(() => {
@@ -89,47 +100,95 @@ export function StudentRosterTable({ students }: Props) {
   return (
     <div className="bg-white border border-ngt-line rounded-lg shadow-card overflow-hidden">
       {/* TOOLBAR */}
-      <div className="px-4 py-3 border-b border-ngt-line flex flex-wrap items-center gap-x-3 gap-y-2">
-        <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ngt-muted" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search name, email, program..."
-            className="h-9 pl-9 pr-3 rounded-md border border-ngt-line text-sm w-[280px] focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40"
-          />
-        </div>
+      <div className="border-b border-ngt-line">
+        {/* Primary row: search + 2 most-used filters + more-toggle + clear + counter */}
+        <div className="px-4 py-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ngt-muted" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search name, email, program..."
+              className="h-9 pl-9 pr-3 rounded-md border border-ngt-line text-sm w-[280px] focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40"
+            />
+          </div>
 
-        <Filter size={14} className="text-ngt-muted" />
+          <Filter size={14} className="text-ngt-muted" />
 
-        <FilterSelect label="Program" value={program} onChange={setProgram} options={programs} />
-        <FilterSelect label="Status" value={status} onChange={setStatus} options={statuses} />
-        <FilterSelect label="Cohort" value={cohort} onChange={setCohort} options={cohorts} />
-        <FilterSelect
-          label="Enrollment"
-          value={enrollment}
-          onChange={setEnrollment}
-          options={enrollmentStatuses}
-        />
-        <FilterSelect
-          label="Activity"
-          value={activity}
-          onChange={setActivity}
-          options={[ALL, "Active last 7d", "Inactive 7–14d", "Inactive 14d+"]}
-        />
+          <FilterSelect label="Status" value={status} onChange={setStatus} options={statuses} />
+          <FilterSelect label="Cohort" value={cohort} onChange={setCohort} options={cohorts} />
 
-        {activeFilters > 0 && (
           <button
-            onClick={clearAll}
-            className="inline-flex items-center gap-1 h-9 px-2.5 rounded-md text-[11px] font-semibold uppercase tracking-widest text-ngt-muted hover:text-ngt-text border border-transparent hover:border-ngt-line"
+            type="button"
+            onClick={() => setMoreOpen((v) => !v)}
+            disabled={secondaryActive > 0}
+            title={
+              secondaryActive > 0
+                ? "Secondary filters are active and stay visible"
+                : showSecondary
+                ? "Hide secondary filters"
+                : "Show secondary filters (Program, Enrollment, Activity)"
+            }
+            className={clsx(
+              "inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[11px] font-semibold uppercase tracking-widest border transition",
+              showSecondary
+                ? "border-ngt-line bg-ngt-bg text-ngt-text"
+                : "border-ngt-line text-ngt-muted hover:text-ngt-text hover:bg-ngt-bg",
+              secondaryActive > 0 && "cursor-default"
+            )}
           >
-            <X size={12} /> Clear ({activeFilters})
+            {showSecondary ? "Less filters" : "More filters"}
+            {secondaryActive > 0 && (
+              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold bg-ngt-yellow/20 text-ngt-yellowDark">
+                +{secondaryActive}
+              </span>
+            )}
+            <ChevronDown
+              size={12}
+              className={clsx("transition-transform", showSecondary && "rotate-180")}
+            />
           </button>
-        )}
 
-        <div className="ml-auto text-[12px] text-ngt-muted">
-          {rows.length} of {students.length} students
+          {activeFilters > 0 && (
+            <button
+              onClick={clearAll}
+              className="inline-flex items-center gap-1 h-9 px-2.5 rounded-md text-[11px] font-semibold uppercase tracking-widest text-ngt-muted hover:text-ngt-text border border-transparent hover:border-ngt-line"
+            >
+              <X size={12} /> Clear ({activeFilters})
+            </button>
+          )}
+
+          <div className="ml-auto text-[12px] text-ngt-muted">
+            {rows.length} of {students.length} students
+          </div>
         </div>
+
+        {/* Secondary row: situational filters, expanded inline */}
+        {showSecondary && (
+          <div className="px-4 pt-1 pb-3 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-ngt-line/70 bg-ngt-bg/40">
+            <span className="text-[10px] uppercase tracking-widest text-ngt-muted font-semibold pr-1">
+              More
+            </span>
+            <FilterSelect
+              label="Program"
+              value={program}
+              onChange={setProgram}
+              options={programs}
+            />
+            <FilterSelect
+              label="Enrollment"
+              value={enrollment}
+              onChange={setEnrollment}
+              options={enrollmentStatuses}
+            />
+            <FilterSelect
+              label="Activity"
+              value={activity}
+              onChange={setActivity}
+              options={[ALL, "Active last 7d", "Inactive 7–14d", "Inactive 14d+"]}
+            />
+          </div>
+        )}
       </div>
 
       {/* TABLE */}
