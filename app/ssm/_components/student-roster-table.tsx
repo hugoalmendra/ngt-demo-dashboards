@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpDown, ChevronDown, Filter, Search, X } from "lucide-react";
+import { ArrowUpDown, Check, ChevronDown, Copy, Filter, Mail, Phone, Search, X } from "lucide-react";
 import clsx from "clsx";
 import type { Student } from "@/lib/types";
 import { ProgressBar } from "@/components/progress-bar";
@@ -24,6 +24,10 @@ export function StudentRosterTable({ students }: Props) {
   const [enrollment, setEnrollment] = useState<string>(ALL);
   const [activity, setActivity] = useState<string>(ALL);
   const [moreOpen, setMoreOpen] = useState(false);
+  // Tracks which copy button was last pressed and whether it succeeded,
+  // for ~2s of inline feedback. Per-button so an error never colors the
+  // *other* copy button.
+  const [copied, setCopied] = useState<{ kind: "email" | "phone"; ok: boolean } | null>(null);
 
   const cohorts = useMemo(
     () => [ALL, ...Array.from(new Set(students.map((s) => s.cohort))).sort()],
@@ -97,6 +101,25 @@ export function StudentRosterTable({ students }: Props) {
     });
   }, [students, q, cohort, program, status, enrollment, activity]);
 
+  // Derived counts for the bulk-copy buttons. Phone count skips students
+  // without a phone on file so the displayed number matches what's pasted.
+  const emailCount = rows.length;
+  const phoneCount = rows.filter((s) => !!s.phoneNumber).length;
+
+  const copyList = async (kind: "email" | "phone") => {
+    const items =
+      kind === "email"
+        ? rows.map((s) => s.email).filter((v): v is string => !!v)
+        : rows.map((s) => s.phoneNumber).filter((v): v is string => !!v);
+    try {
+      await navigator.clipboard.writeText(items.join("\n"));
+      setCopied({ kind, ok: true });
+    } catch {
+      setCopied({ kind, ok: false });
+    }
+    setTimeout(() => setCopied(null), 2000);
+  };
+
   return (
     <div className="bg-white border border-ngt-line rounded-lg shadow-card overflow-hidden">
       {/* TOOLBAR */}
@@ -157,6 +180,19 @@ export function StudentRosterTable({ students }: Props) {
               <X size={12} /> Clear ({activeFilters})
             </button>
           )}
+
+          <CopyButton
+            kind="email"
+            count={emailCount}
+            copied={copied}
+            onClick={() => copyList("email")}
+          />
+          <CopyButton
+            kind="phone"
+            count={phoneCount}
+            copied={copied}
+            onClick={() => copyList("phone")}
+          />
 
           <div className="ml-auto text-[12px] text-ngt-muted">
             {rows.length} of {students.length} students
@@ -351,6 +387,63 @@ export function StudentRosterTable({ students }: Props) {
         </table>
       </div>
     </div>
+  );
+}
+
+function CopyButton({
+  kind,
+  count,
+  copied,
+  onClick,
+}: {
+  kind: "email" | "phone";
+  count: number;
+  copied: { kind: "email" | "phone"; ok: boolean } | null;
+  onClick: () => void;
+}) {
+  const isMe = copied?.kind === kind;
+  const isSuccess = isMe && copied!.ok;
+  const isError = isMe && !copied!.ok;
+  const disabled = count === 0;
+  const label = kind === "email" ? "emails" : "phones";
+  const Icon = kind === "email" ? Mail : Phone;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={
+        disabled
+          ? `No ${label} in the current filter`
+          : `Copy ${count} ${label} (one per line) to clipboard`
+      }
+      className={clsx(
+        "inline-flex items-center gap-1.5 h-9 px-3 rounded-md text-[11px] font-bold uppercase tracking-widest border transition",
+        disabled
+          ? "border-ngt-line text-ngt-muted/60 cursor-not-allowed bg-ngt-bg"
+          : isSuccess
+          ? "border-emerald-500 text-emerald-700 bg-emerald-50"
+          : isError
+          ? "border-rose-500 text-rose-700 bg-rose-50"
+          : "border-ngt-yellow text-ngt-yellowDark hover:bg-ngt-yellow/10"
+      )}
+    >
+      {isSuccess ? (
+        <>
+          <Check size={12} /> Copied {count} {label}
+        </>
+      ) : isError ? (
+        <>
+          <X size={12} /> Copy failed
+        </>
+      ) : (
+        <>
+          <Icon size={12} />
+          <Copy size={11} className="-ml-0.5 opacity-70" />
+          Copy {count} {label}
+        </>
+      )}
+    </button>
   );
 }
 
