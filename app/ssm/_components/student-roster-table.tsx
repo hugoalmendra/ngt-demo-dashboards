@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpDown, Filter, Search } from "lucide-react";
+import { ArrowUpDown, Filter, Search, X } from "lucide-react";
 import clsx from "clsx";
 import type { Student } from "@/lib/types";
 import { ProgressBar } from "@/components/progress-bar";
@@ -14,14 +14,49 @@ interface Props {
   students: Student[];
 }
 
+const ALL = "All";
+
 export function StudentRosterTable({ students }: Props) {
   const [q, setQ] = useState("");
-  const [cohort, setCohort] = useState<string>("All");
+  const [cohort, setCohort] = useState<string>(ALL);
+  const [program, setProgram] = useState<string>(ALL);
+  const [status, setStatus] = useState<string>(ALL);
+  const [enrollment, setEnrollment] = useState<string>(ALL);
+  const [activity, setActivity] = useState<string>(ALL);
 
   const cohorts = useMemo(
-    () => ["All", ...Array.from(new Set(students.map((s) => s.cohort))).sort()],
+    () => [ALL, ...Array.from(new Set(students.map((s) => s.cohort))).sort()],
     [students]
   );
+  const programs = useMemo(
+    () => [ALL, ...Array.from(new Set(students.map((s) => s.programOfStudy))).sort()],
+    [students]
+  );
+  const statuses = useMemo(
+    () => [ALL, ...Array.from(new Set(students.map((s) => s.progressStatus)))],
+    [students]
+  );
+  const enrollmentStatuses = useMemo(
+    () => [ALL, ...Array.from(new Set(students.map((s) => s.primaryEnrollmentStatus)))],
+    [students]
+  );
+
+  const activeFilters =
+    (cohort !== ALL ? 1 : 0) +
+    (program !== ALL ? 1 : 0) +
+    (status !== ALL ? 1 : 0) +
+    (enrollment !== ALL ? 1 : 0) +
+    (activity !== ALL ? 1 : 0) +
+    (q.trim() !== "" ? 1 : 0);
+
+  const clearAll = () => {
+    setQ("");
+    setCohort(ALL);
+    setProgram(ALL);
+    setStatus(ALL);
+    setEnrollment(ALL);
+    setActivity(ALL);
+  };
 
   const rows = useMemo(() => {
     return students.filter((s) => {
@@ -30,39 +65,68 @@ export function StudentRosterTable({ students }: Props) {
         s.fullName.toLowerCase().includes(q.toLowerCase()) ||
         s.email.toLowerCase().includes(q.toLowerCase()) ||
         s.programOfStudy.toLowerCase().includes(q.toLowerCase());
-      const matchesCohort = cohort === "All" || s.cohort === cohort;
-      return matchesQ && matchesCohort;
+      const matchesCohort = cohort === ALL || s.cohort === cohort;
+      const matchesProgram = program === ALL || s.programOfStudy === program;
+      const matchesStatus = status === ALL || s.progressStatus === status;
+      const matchesEnrollment =
+        enrollment === ALL || s.primaryEnrollmentStatus === enrollment;
+      const matchesActivity =
+        activity === ALL ||
+        (activity === "Active last 7d" && s.daysSinceActive <= 7) ||
+        (activity === "Inactive 7–14d" && s.daysSinceActive > 7 && s.daysSinceActive <= 14) ||
+        (activity === "Inactive 14d+" && s.daysSinceActive > 14);
+      return (
+        matchesQ &&
+        matchesCohort &&
+        matchesProgram &&
+        matchesStatus &&
+        matchesEnrollment &&
+        matchesActivity
+      );
     });
-  }, [students, q, cohort]);
+  }, [students, q, cohort, program, status, enrollment, activity]);
 
   return (
     <div className="bg-white border border-ngt-line rounded-lg shadow-card overflow-hidden">
       {/* TOOLBAR */}
-      <div className="px-4 py-3 border-b border-ngt-line flex flex-wrap items-center gap-3">
+      <div className="px-4 py-3 border-b border-ngt-line flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ngt-muted" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search name, email, program..."
-            className="h-9 pl-9 pr-3 rounded-md border border-ngt-line text-sm w-[300px] focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40"
+            className="h-9 pl-9 pr-3 rounded-md border border-ngt-line text-sm w-[280px] focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40"
           />
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Filter size={14} className="text-ngt-muted" />
-          <label className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold">
-            Cohort
-          </label>
-          <select
-            value={cohort}
-            onChange={(e) => setCohort(e.target.value)}
-            className="h-9 px-2 rounded-md border border-ngt-line text-sm focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40"
+
+        <Filter size={14} className="text-ngt-muted" />
+
+        <FilterSelect label="Program" value={program} onChange={setProgram} options={programs} />
+        <FilterSelect label="Status" value={status} onChange={setStatus} options={statuses} />
+        <FilterSelect label="Cohort" value={cohort} onChange={setCohort} options={cohorts} />
+        <FilterSelect
+          label="Enrollment"
+          value={enrollment}
+          onChange={setEnrollment}
+          options={enrollmentStatuses}
+        />
+        <FilterSelect
+          label="Activity"
+          value={activity}
+          onChange={setActivity}
+          options={[ALL, "Active last 7d", "Inactive 7–14d", "Inactive 14d+"]}
+        />
+
+        {activeFilters > 0 && (
+          <button
+            onClick={clearAll}
+            className="inline-flex items-center gap-1 h-9 px-2.5 rounded-md text-[11px] font-semibold uppercase tracking-widest text-ngt-muted hover:text-ngt-text border border-transparent hover:border-ngt-line"
           >
-            {cohorts.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-        </div>
+            <X size={12} /> Clear ({activeFilters})
+          </button>
+        )}
+
         <div className="ml-auto text-[12px] text-ngt-muted">
           {rows.length} of {students.length} students
         </div>
@@ -228,6 +292,39 @@ export function StudentRosterTable({ students }: Props) {
         </table>
       </div>
     </div>
+  );
+}
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+}) {
+  const isActive = value !== ALL;
+  return (
+    <label className="inline-flex items-center gap-1.5 text-sm">
+      <span className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold">
+        {label}
+      </span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={clsx(
+          "h-9 px-2 rounded-md border text-sm focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40 max-w-[200px]",
+          isActive ? "border-ngt-yellow bg-ngt-yellow/10 font-semibold" : "border-ngt-line"
+        )}
+      >
+        {options.map((o) => (
+          <option key={o}>{o}</option>
+        ))}
+      </select>
+    </label>
   );
 }
 
