@@ -14,6 +14,7 @@ import type { EnrollmentStatus, ProgramEnrollment } from "@/lib/types";
 import { ProgressBar } from "./progress-bar";
 import { ProgramTree } from "./program-tree";
 import { MilestoneList } from "./milestone-list";
+import { ViewOrderButton } from "./view-order-button";
 import { formatDate } from "@/lib/format";
 
 const STATUS_STYLES: Record<EnrollmentStatus, string> = {
@@ -58,60 +59,74 @@ export function EnrollmentCard({ enrollment, variant, defaultOpen = false }: Pro
 
   return (
     <div className="bg-white border border-ngt-line rounded-lg shadow-card overflow-hidden">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full px-5 py-4 flex items-center gap-4 hover:bg-ngt-bg/40 text-left"
-      >
-        <div
-          className={clsx(
-            "w-10 h-10 rounded-md grid place-items-center shrink-0",
-            isCourse ? "bg-violet-50 text-violet-600" : "bg-amber-50 text-amber-700"
-          )}
+      <div className="flex items-stretch hover:bg-ngt-bg/40">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex-1 min-w-0 px-5 py-4 flex items-center gap-4 text-left"
         >
-          {isCourse ? <Library size={18} /> : <GraduationCap size={18} />}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] uppercase tracking-widest text-ngt-muted font-semibold">
-              {isCourse ? "Add-on Course" : "Program"}
-            </span>
-            <span
-              className={clsx(
-                "inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-full",
-                STATUS_STYLES[enrollment.status]
-              )}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-current" />
-              {enrollment.status}
-            </span>
-          </div>
-          <div className="font-bold text-sm mt-0.5 truncate">{enrollment.name}</div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-ngt-muted mt-1">
-            <span className="inline-flex items-center gap-1">
-              <CalendarRange size={11} /> {formatDate(enrollment.enrolledAt)}
-              {enrollment.completedAt && <> → {formatDate(enrollment.completedAt)}</>}
-            </span>
-            <span>· {enrollment.cohort}</span>
-            {enrollment.certsEarned && enrollment.certsEarned.length > 0 && (
-              <span className="inline-flex items-center gap-1">
-                <Award size={11} /> {enrollment.certsEarned.length} certs earned
-              </span>
+          <div
+            className={clsx(
+              "w-10 h-10 rounded-md grid place-items-center shrink-0",
+              isCourse ? "bg-violet-50 text-violet-600" : "bg-amber-50 text-amber-700"
             )}
+          >
+            {isCourse ? <Library size={18} /> : <GraduationCap size={18} />}
           </div>
-        </div>
-        <div className="w-[140px] hidden md:block">
-          <ProgressBar
-            value={enrollment.progressPct}
-            variant={enrollment.status === "Completed" ? "green" : "auto"}
-            size="sm"
-            showLabel
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] uppercase tracking-widest text-ngt-muted font-semibold">
+                {isCourse ? "Add-on Course" : "Program"}
+              </span>
+              <span
+                className={clsx(
+                  "inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-full",
+                  STATUS_STYLES[enrollment.status]
+                )}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                {enrollment.status}
+              </span>
+            </div>
+            <div className="font-bold text-sm mt-0.5 truncate">{enrollment.name}</div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-ngt-muted mt-1">
+              <span className="inline-flex items-center gap-1">
+                <CalendarRange size={11} /> {formatDate(enrollment.enrolledAt)}
+                {enrollment.completedAt && <> → {formatDate(enrollment.completedAt)}</>}
+              </span>
+              <span>· {enrollment.cohort}</span>
+              {enrollment.certsEarned && enrollment.certsEarned.length > 0 && (
+                <span className="inline-flex items-center gap-1">
+                  <Award size={11} /> {enrollment.certsEarned.length} certs earned
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="w-[140px] hidden md:block">
+            <ProgressBar
+              value={enrollment.progressPct}
+              variant={enrollment.status === "Completed" ? "green" : "auto"}
+              size="sm"
+              showLabel
+            />
+          </div>
+          <ChevronDown
+            size={16}
+            className={clsx("text-ngt-muted transition-transform", open && "rotate-180")}
           />
-        </div>
-        <ChevronDown
-          size={16}
-          className={clsx("text-ngt-muted transition-transform", open && "rotate-180")}
-        />
-      </button>
+        </button>
+        {enrollment.order && (
+          <div className="pr-4 grid place-items-center border-l border-ngt-line">
+            <div className="pl-4">
+              <ViewOrderButton
+                productName={enrollment.name}
+                status={enrollment.status}
+                order={enrollment.order}
+                size="sm"
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       {open && (
         <div className="border-t border-ngt-line bg-ngt-bg/30 px-5 py-4 space-y-4">

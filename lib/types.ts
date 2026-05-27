@@ -79,6 +79,12 @@ export interface Student {
   email: string;
   avatarColor: string;     // tailwind class for the avatar circle bg
 
+  // ---- Contact / shipping info (from LMS profile) ----
+  phoneNumber?: string;
+  shippingAddress?: string;        // multi-line; render as-is
+  tshirtSize?: string;             // "S" | "M" | "L" | "XL" | "N/A"
+  signUpMethod?: string;           // "Email" | "Google" | "Facebook" | "SSO" etc.
+
   // ---- HubSpot / IAU fields requested by Paul/Andrew ----
   programOfStudy: string;          // "Cybersecurity Accelerator"
   iauProgramType: string;          // e.g. "Associate of Applied Science"
@@ -104,6 +110,13 @@ export interface Student {
 
   // ---- Cohort ----
   cohort: string;                   // e.g. "FSNE Cybersecurity Path"
+
+  // ---- Primary enrollment status + order ----
+  // Most students have just one enrollment; these mirror what an
+  // additionalEnrollment carries so the primary can show the same
+  // status pill (Active / Paused / Expired / Completed) and order details.
+  primaryEnrollmentStatus: EnrollmentStatus;
+  primaryOrder?: OrderDetails;
 
   // ---- Tree (used in detail view + student view) ----
   program: Program;
@@ -142,4 +155,26 @@ export interface ProgramEnrollment {
   course?: Course;               // when kind === "Course"
   milestones?: Milestone[];      // optional per-enrollment milestones
   certsEarned?: string[];        // human-readable list of certs earned here
+  order?: OrderDetails;          // billing / payment plan info
+}
+
+// ---------------------------------------------------------------------
+// Order details — billing/payment info shown in the existing NGT
+// "View Order Detail" modal.
+// ---------------------------------------------------------------------
+export interface OrderCharge {
+  date: string;                  // ISO
+  amount: number;                // dollars
+  method: string;                // "Credit Card" | "VA Benefits" | etc.
+  refunded?: boolean;
+}
+
+export interface OrderDetails {
+  paymentPlan: string;           // "$1", "$249/mo × 6", "Free", "VA Benefits"
+  paymentMethod: string;         // "Credit Card", "VA Benefits", "PO", etc.
+  startDate: string;             // ISO
+  nextBillingDate?: string;      // ISO; omit if paid-in-full or completed
+  amountPaid: number;            // dollars
+  balanceDue: number;            // dollars
+  charges: OrderCharge[];
 }

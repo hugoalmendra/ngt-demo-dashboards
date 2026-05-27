@@ -13,6 +13,10 @@ import {
   CalendarRange,
   Activity,
   Flag,
+  Contact,
+  MapPin,
+  Shirt,
+  UserPlus,
 } from "lucide-react";
 import { STUDENTS, findStudent } from "@/lib/mock-data";
 import { StatusPill } from "@/components/status-pill";
@@ -23,7 +27,15 @@ import { DataRow } from "@/components/data-row";
 import { StatCard } from "@/components/stat-card";
 import { MilestoneList } from "@/components/milestone-list";
 import { EnrollmentCard } from "@/components/enrollment-card";
+import { ViewOrderButton } from "@/components/view-order-button";
 import { formatDate, formatDelta } from "@/lib/format";
+
+const ENROLLMENT_STATUS_STYLES: Record<string, string> = {
+  Active: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  Paused: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+  Expired: "bg-rose-50 text-rose-700 ring-1 ring-rose-200",
+  Completed: "bg-ngt-yellow/15 text-ngt-yellowDark ring-1 ring-ngt-yellow/40",
+};
 
 export function generateStaticParams() {
   return STUDENTS.map((s) => ({ id: s.id }));
@@ -129,14 +141,26 @@ export default function StudentDetail({ params }: { params: { id: string } }) {
         {/* LEFT — TREE PROGRESS */}
         <div className="lg:col-span-2 space-y-6">
           <section>
-            <div className="flex items-baseline justify-between mb-3">
+            <div className="flex items-end justify-between mb-3 flex-wrap gap-2">
               <div>
                 <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold">
                   Active program · hierarchical progress
                 </div>
-                <h2 className="text-lg font-bold">Program → Course → Module</h2>
+                <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                  <h2 className="text-lg font-bold">Program → Course → Module</h2>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-semibold rounded-full ${ENROLLMENT_STATUS_STYLES[s.primaryEnrollmentStatus]}`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                    {s.primaryEnrollmentStatus} enrollment
+                  </span>
+                </div>
               </div>
-              <span className="text-[11px] text-ngt-muted">Live from LMS</span>
+              <ViewOrderButton
+                productName={s.programOfStudy}
+                status={s.primaryEnrollmentStatus}
+                order={s.primaryOrder}
+              />
             </div>
             <ProgramTree program={s.program} />
           </section>
@@ -201,6 +225,23 @@ export default function StudentDetail({ params }: { params: { id: string } }) {
 
         {/* RIGHT — DATA PANELS */}
         <div className="space-y-6">
+          <Panel title="Contact" icon={<Contact size={14} />}>
+            <DataRow label="Email" value={s.email} />
+            <DataRow label="Phone Number" value={s.phoneNumber} />
+            <DataRow
+              label="Shipping Address"
+              value={
+                s.shippingAddress ? (
+                  <span className="whitespace-pre-line leading-snug">{s.shippingAddress}</span>
+                ) : (
+                  "—"
+                )
+              }
+            />
+            <DataRow label="T-Shirt Size" value={s.tshirtSize} />
+            <DataRow label="Sign-up Method" value={s.signUpMethod} />
+          </Panel>
+
           <Panel
             title="IAU / Program details"
             subtitle="Sourced from HubSpot today · should be native LMS"
