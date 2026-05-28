@@ -114,7 +114,7 @@ export function EnrollmentCard({ enrollment, variant, defaultOpen = false }: Pro
             className={clsx("text-ngt-muted transition-transform", open && "rotate-180")}
           />
         </button>
-        {enrollment.order && (
+        {variant === "ssm" && enrollment.order && (
           <div className="pr-4 grid place-items-center border-l border-ngt-line">
             <div className="pl-4">
               <ViewOrderButton
