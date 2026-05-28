@@ -6,6 +6,7 @@ import { CertBadge } from "@/components/cert-badge";
 import { StatusPill } from "@/components/status-pill";
 import { MilestoneList } from "@/components/milestone-list";
 import { EnrollmentCard } from "@/components/enrollment-card";
+import { ExtendDueDatesButton } from "@/components/extend-due-dates-button";
 import { formatDate } from "@/lib/format";
 
 export default function StudentDashboard() {
@@ -134,16 +135,19 @@ export default function StudentDashboard() {
 
       {/* MILESTONES */}
       <section>
-        <div className="flex items-baseline justify-between mb-3">
+        <div className="flex items-end justify-between mb-3 gap-3 flex-wrap">
           <div>
             <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold">
               Submissions
             </div>
             <h2 className="text-lg font-bold">Your milestones</h2>
           </div>
-          <span className="text-[11px] text-ngt-muted">
-            Reviewed manually by instructors and coaches
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] text-ngt-muted hidden sm:inline">
+              Reviewed manually by instructors and coaches
+            </span>
+            <ExtendDueDatesButton milestones={s.milestones} />
+          </div>
         </div>
         <MilestoneList milestones={s.milestones} variant="student" title="Action items & submissions" />
       </section>
