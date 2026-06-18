@@ -8,6 +8,9 @@ export interface NewUser {
   firstName: string;
   lastName: string;
   iauStudent: boolean;
+  iauTerm: string;
+  iauProgramOfStudy: string;
+  iauProgramType: string;
   birthMonth: string;
   birthDay: string;
   birthYear: string;
@@ -58,11 +61,42 @@ const FOUND_US_OPTIONS = [
   "Other",
 ];
 
+// IAU school terms with fixed start/end dates. Dates are display-only and
+// driven by the selected term (TBD = not yet announced).
+interface IauTerm {
+  name: string;
+  startDate: string;
+  endDate: string;
+}
+
+const IAU_TERMS: IauTerm[] = [
+  { name: "Spring Session 1 2026", startDate: "1/5/26", endDate: "6/5/26" },
+  { name: "Spring Session 2 2026", startDate: "3/2/26", endDate: "9/2/26" },
+  { name: "Summer Session 1 2026", startDate: "5/4/26", endDate: "11/4/26" },
+  { name: "Summer Session 2 2026", startDate: "6/29/26", endDate: "12/20/26" },
+  { name: "Fall Session 1 2027", startDate: "8/31/26", endDate: "2/28/27" },
+  { name: "Fall Session 2 2027", startDate: "10/26/26", endDate: "4/25/27" },
+  { name: "Spring Session 1 2027", startDate: "1/4/27", endDate: "6/27/27" },
+  { name: "Spring Session 2 2027", startDate: "3/1/27", endDate: "8/22/27" },
+  { name: "Summer Session 1 2027", startDate: "5/3/27", endDate: "TBD" },
+  { name: "Summer Session 2 2027", startDate: "6/28/27", endDate: "TBD" },
+];
+
+const IAU_PROGRAMS_OF_STUDY = [
+  "Certificate Cybersecurity Accelerator (CCA)",
+  "Certificate Full Stack Network Engineer (CFSNE)",
+];
+
+const IAU_PROGRAM_TYPES = ["Degree", "Certificate"];
+
 export function AddUserModal({ onClose, onCreate }: Props) {
   const [form, setForm] = useState<NewUser>({
     firstName: "",
     lastName: "",
     iauStudent: false,
+    iauTerm: "",
+    iauProgramOfStudy: "",
+    iauProgramType: "",
     birthMonth: MONTHS[0],
     birthDay: DAYS[0],
     birthYear: String(CURRENT_YEAR),
@@ -95,6 +129,11 @@ export function AddUserModal({ onClose, onCreate }: Props) {
     };
   }, [onClose]);
 
+  const selectedTerm = useMemo(
+    () => IAU_TERMS.find((t) => t.name === form.iauTerm) ?? null,
+    [form.iauTerm]
+  );
+
   const isValid = useMemo(
     () =>
       form.firstName.trim() !== "" &&
@@ -102,7 +141,11 @@ export function AddUserModal({ onClose, onCreate }: Props) {
       form.phoneNumber.trim() !== "" &&
       /\S+@\S+\.\S+/.test(form.email) &&
       form.role.trim() !== "" &&
-      form.foundUs.trim() !== "",
+      form.foundUs.trim() !== "" &&
+      (!form.iauStudent ||
+        (form.iauTerm.trim() !== "" &&
+          form.iauProgramOfStudy.trim() !== "" &&
+          form.iauProgramType.trim() !== "")),
     [form]
   );
 
@@ -169,6 +212,54 @@ export function AddUserModal({ onClose, onCreate }: Props) {
               <span className="text-sm text-ngt-text">IAU Student</span>
             </label>
           </Field>
+
+          {/* IAU-only fields */}
+          {form.iauStudent && (
+            <div className="rounded-md border border-ngt-yellow/40 bg-ngt-yellow/5 px-4 py-4 space-y-4">
+              <div className="text-[11px] uppercase tracking-widest text-ngt-yellowDark font-bold">
+                IAU Details
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Term" required>
+                  <Select
+                    value={form.iauTerm}
+                    onChange={(v) => set("iauTerm", v)}
+                    options={IAU_TERMS.map((t) => t.name)}
+                    placeholder="Select a term"
+                  />
+                </Field>
+                <Field label="Term Dates">
+                  <div className="h-10 px-3 rounded-md border border-ngt-line bg-ngt-bg/60 text-sm text-ngt-text flex items-center">
+                    {selectedTerm ? (
+                      <span className="tabular-nums">
+                        {selectedTerm.startDate} &ndash; {selectedTerm.endDate}
+                      </span>
+                    ) : (
+                      <span className="text-ngt-muted">Select a term to see dates</span>
+                    )}
+                  </div>
+                </Field>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Program of Study" required>
+                  <Select
+                    value={form.iauProgramOfStudy}
+                    onChange={(v) => set("iauProgramOfStudy", v)}
+                    options={IAU_PROGRAMS_OF_STUDY}
+                    placeholder="Select a program"
+                  />
+                </Field>
+                <Field label="IAU Program Type" required>
+                  <Select
+                    value={form.iauProgramType}
+                    onChange={(v) => set("iauProgramType", v)}
+                    options={IAU_PROGRAM_TYPES}
+                    placeholder="Select a type"
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
 
           {/* Birth date */}
           <Field label="Birth Date">
