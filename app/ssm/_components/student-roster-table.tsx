@@ -2,13 +2,76 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpDown, Check, ChevronDown, Copy, Filter, Mail, Phone, Search, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  Check,
+  ChevronDown,
+  Copy,
+  Filter,
+  Mail,
+  Phone,
+  Search,
+  UserPlus,
+  X,
+} from "lucide-react";
 import clsx from "clsx";
 import type { Student } from "@/lib/types";
 import { ProgressBar } from "@/components/progress-bar";
 import { StatusPill } from "@/components/status-pill";
 import { MilestoneStatusCounts } from "@/components/milestone-status-badge";
+import { AddUserModal, type NewUser } from "@/components/add-user-modal";
 import { formatShortDate } from "@/lib/format";
+
+const AVATAR_PALETTE = [
+  "bg-rose-500",
+  "bg-amber-500",
+  "bg-emerald-500",
+  "bg-sky-500",
+  "bg-violet-500",
+  "bg-fuchsia-500",
+];
+
+// Builds a valid Student record from the Add User form so the new person
+// shows up in the roster immediately. Progress/cert data starts empty.
+function studentFromNewUser(u: NewUser, index: number): Student {
+  const fullName = `${u.firstName} ${u.lastName}`.trim();
+  const id =
+    fullName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") ||
+    `user-${Date.now()}`;
+  const today = new Date().toISOString().slice(0, 10);
+  const addressParts = [
+    u.streetAddress,
+    [u.city, u.state, u.zipCode].filter(Boolean).join(", "),
+    u.country?.toUpperCase(),
+  ].filter(Boolean);
+
+  return {
+    id: `${id}-${Date.now()}`,
+    fullName,
+    email: u.email,
+    avatarColor: AVATAR_PALETTE[index % AVATAR_PALETTE.length],
+    phoneNumber: u.phoneNumber || undefined,
+    shippingAddress: addressParts.length ? addressParts.join("\n") : undefined,
+    tshirtSize: u.tshirtSize,
+    signUpMethod: u.foundUs || undefined,
+    programOfStudy: "Unassigned",
+    iauProgramType: u.iauStudent ? "IAU Student" : "—",
+    ngtSpecialization: "—",
+    iauSchoolTerm: undefined,
+    accountCreatedDate: today,
+    lastActiveDate: today,
+    daysSinceActive: 0,
+    hundredDayGoalPct: 0,
+    programProgressPct: 0,
+    certs: [],
+    fsnaDeltaDays: 0,
+    progressStatus: "On Track",
+    cohort: "Unassigned",
+    primaryEnrollmentStatus: "Active",
+    program: { id: `${id}-program`, name: "Unassigned", courses: [] },
+    milestones: [],
+  };
+}
 
 interface Props {
   students: Student[];
@@ -17,6 +80,8 @@ interface Props {
 const ALL = "All";
 
 export function StudentRosterTable({ students }: Props) {
+  const [roster, setRoster] = useState<Student[]>(students);
+  const [addOpen, setAddOpen] = useState(false);
   const [q, setQ] = useState("");
   const [cohort, setCohort] = useState<string>(ALL);
   const [program, setProgram] = useState<string>(ALL);
@@ -30,20 +95,20 @@ export function StudentRosterTable({ students }: Props) {
   const [copied, setCopied] = useState<{ kind: "email" | "phone"; ok: boolean } | null>(null);
 
   const cohorts = useMemo(
-    () => [ALL, ...Array.from(new Set(students.map((s) => s.cohort))).sort()],
-    [students]
+    () => [ALL, ...Array.from(new Set(roster.map((s) => s.cohort))).sort()],
+    [roster]
   );
   const programs = useMemo(
-    () => [ALL, ...Array.from(new Set(students.map((s) => s.programOfStudy))).sort()],
-    [students]
+    () => [ALL, ...Array.from(new Set(roster.map((s) => s.programOfStudy))).sort()],
+    [roster]
   );
   const statuses = useMemo(
-    () => [ALL, ...Array.from(new Set(students.map((s) => s.progressStatus)))],
-    [students]
+    () => [ALL, ...Array.from(new Set(roster.map((s) => s.progressStatus)))],
+    [roster]
   );
   const enrollmentStatuses = useMemo(
-    () => [ALL, ...Array.from(new Set(students.map((s) => s.primaryEnrollmentStatus)))],
-    [students]
+    () => [ALL, ...Array.from(new Set(roster.map((s) => s.primaryEnrollmentStatus)))],
+    [roster]
   );
 
   const activeFilters =
@@ -74,7 +139,7 @@ export function StudentRosterTable({ students }: Props) {
   };
 
   const rows = useMemo(() => {
-    return students.filter((s) => {
+    return roster.filter((s) => {
       const matchesQ =
         q.trim() === "" ||
         s.fullName.toLowerCase().includes(q.toLowerCase()) ||
@@ -99,7 +164,11 @@ export function StudentRosterTable({ students }: Props) {
         matchesActivity
       );
     });
-  }, [students, q, cohort, program, status, enrollment, activity]);
+  }, [roster, q, cohort, program, status, enrollment, activity]);
+
+  const handleCreate = (user: NewUser) => {
+    setRoster((cur) => [studentFromNewUser(user, cur.length), ...cur]);
+  };
 
   // Derived counts for the bulk-copy buttons. Phone count skips students
   // without a phone on file so the displayed number matches what's pasted.
@@ -194,8 +263,17 @@ export function StudentRosterTable({ students }: Props) {
             onClick={() => copyList("phone")}
           />
 
-          <div className="ml-auto text-[12px] text-ngt-muted">
-            {rows.length} of {students.length} students
+          <div className="ml-auto flex items-center gap-3">
+            <span className="text-[12px] text-ngt-muted">
+              {rows.length} of {roster.length} students
+            </span>
+            <button
+              type="button"
+              onClick={() => setAddOpen(true)}
+              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
+            >
+              <UserPlus size={13} /> Add User
+            </button>
           </div>
         </div>
 
@@ -386,6 +464,10 @@ export function StudentRosterTable({ students }: Props) {
           </tbody>
         </table>
       </div>
+
+      {addOpen && (
+        <AddUserModal onClose={() => setAddOpen(false)} onCreate={handleCreate} />
+      )}
     </div>
   );
 }
