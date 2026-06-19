@@ -9,7 +9,6 @@ import {
   Calendar,
   GraduationCap,
   School,
-  Briefcase,
   CalendarRange,
   Activity,
   Flag,
@@ -28,6 +27,7 @@ import { StatCard } from "@/components/stat-card";
 import { MilestoneList } from "@/components/milestone-list";
 import { EnrollmentCard } from "@/components/enrollment-card";
 import { ViewOrderButton } from "@/components/view-order-button";
+import { IauProgramDetailsPanel } from "@/components/iau-program-details-panel";
 import { formatDate, formatDelta } from "@/lib/format";
 
 const ENROLLMENT_STATUS_STYLES: Record<string, string> = {
@@ -242,17 +242,15 @@ export default function StudentDetail({ params }: { params: { id: string } }) {
             <DataRow label="Sign-up Method" value={s.signUpMethod} />
           </Panel>
 
-          <Panel
-            title="IAU / Program details"
-            subtitle="Sourced from HubSpot today · should be native LMS"
-            icon={<Briefcase size={14} />}
-          >
-            <DataRow label="Program of Study" value={s.programOfStudy} />
-            <DataRow label="IAU Program Type" value={s.iauProgramType} />
-            <DataRow label="NGT Specialization" value={s.ngtSpecialization} />
-            <DataRow label="VA Benefit Chapter" value={s.vaBenefitChapter} />
-            <DataRow label="IAU School Term" value={s.iauSchoolTerm} />
-          </Panel>
+          <IauProgramDetailsPanel
+            details={{
+              programOfStudy: s.programOfStudy,
+              iauProgramType: s.iauProgramType,
+              ngtSpecialization: s.ngtSpecialization,
+              vaBenefitChapter: s.vaBenefitChapter ?? "",
+              iauSchoolTerm: s.iauSchoolTerm ?? "",
+            }}
+          />
 
           <Panel title="Dates" icon={<CalendarRange size={14} />}>
             <DataRow label="Semester Start" value={formatDate(s.semesterStartDate)} />
