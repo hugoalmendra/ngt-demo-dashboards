@@ -15,15 +15,62 @@ export interface IauProgramDetails {
 interface FieldDef {
   key: keyof IauProgramDetails;
   label: string;
+  options: string[];
 }
 
 const FIELDS: FieldDef[] = [
-  { key: "programOfStudy", label: "Program of Study" },
-  { key: "iauProgramType", label: "IAU Program Type" },
-  { key: "ngtSpecialization", label: "NGT Specialization" },
-  { key: "vaBenefitChapter", label: "VA Benefit Chapter" },
-  { key: "iauSchoolTerm", label: "IAU School Term" },
+  {
+    key: "programOfStudy",
+    label: "Program of Study",
+    options: [
+      "Cybersecurity Accelerator",
+      "Full Stack Network Engineer Basic",
+      "Full Stack Network Engineer Advanced",
+    ],
+  },
+  {
+    key: "iauProgramType",
+    label: "IAU Program Type",
+    options: [
+      "Associate of Applied Science",
+      "Bachelor of Science",
+      "Certificate",
+    ],
+  },
+  {
+    key: "ngtSpecialization",
+    label: "NGT Specialization",
+    options: ["Cyber Security", "Networking", "Network Engineering"],
+  },
+  {
+    key: "vaBenefitChapter",
+    label: "VA Benefit Chapter",
+    options: [
+      "Chapter 33 (Post-9/11 GI Bill)",
+      "Chapter 35 (DEA)",
+      "Chapter 31 (VR&E)",
+      "Chapter 30 (MGIB-AD)",
+    ],
+  },
+  {
+    key: "iauSchoolTerm",
+    label: "IAU School Term",
+    options: [
+      "Spring 2026",
+      "Summer 2026",
+      "Fall 2026",
+      "Spring 2027",
+      "Summer 2027",
+      "Fall 2027",
+    ],
+  },
 ];
+
+// Ensures the current value is always selectable even if it isn't one of
+// the predefined options (e.g. legacy or custom data).
+function optionsWithCurrent(options: string[], current: string) {
+  return current && !options.includes(current) ? [current, ...options] : options;
+}
 
 export function IauProgramDetailsPanel({ details }: { details: IauProgramDetails }) {
   const [saved, setSaved] = useState<IauProgramDetails>(details);
@@ -74,7 +121,7 @@ export function IauProgramDetailsPanel({ details }: { details: IauProgramDetails
       </header>
 
       <div className="px-4 py-2">
-        {FIELDS.map(({ key, label }) => (
+        {FIELDS.map(({ key, label, options }) => (
           <div
             key={key}
             className="flex items-baseline gap-3 py-2 border-b border-ngt-line last:border-b-0"
@@ -84,11 +131,21 @@ export function IauProgramDetailsPanel({ details }: { details: IauProgramDetails
             </div>
             <div className="text-sm text-ngt-text font-medium flex-1 min-w-0">
               {editing ? (
-                <input
+                <select
                   value={draft[key]}
                   onChange={(e) => set(key, e.target.value)}
-                  className="w-full h-9 px-2.5 rounded-md border border-ngt-line text-sm focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40"
-                />
+                  className={clsx(
+                    "w-full h-9 px-2.5 rounded-md border border-ngt-line text-sm bg-white focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40",
+                    draft[key] === "" && "text-ngt-muted"
+                  )}
+                >
+                  <option value="">—</option>
+                  {optionsWithCurrent(options, draft[key]).map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
               ) : (
                 saved[key] || "—"
               )}
