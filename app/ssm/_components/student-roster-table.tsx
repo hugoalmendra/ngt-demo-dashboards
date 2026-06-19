@@ -75,11 +75,21 @@ function studentFromNewUser(u: NewUser, index: number): Student {
 
 interface Props {
   students: Student[];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  titleSize?: "lg" | "xl";
 }
 
 const ALL = "All";
 
-export function StudentRosterTable({ students }: Props) {
+export function StudentRosterTable({
+  students,
+  eyebrow,
+  title,
+  description,
+  titleSize = "lg",
+}: Props) {
   const [roster, setRoster] = useState<Student[]>(students);
   const [addOpen, setAddOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -190,8 +200,39 @@ export function StudentRosterTable({ students }: Props) {
   };
 
   return (
-    <div className="bg-white border border-ngt-line rounded-lg shadow-card overflow-hidden">
-      {/* TOOLBAR */}
+    <div className="space-y-3">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          {eyebrow && (
+            <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold">
+              {eyebrow}
+            </div>
+          )}
+          {title && (
+            <h2
+              className={clsx(
+                "text-ngt-text",
+                titleSize === "xl" ? "text-2xl font-black" : "text-lg font-bold"
+              )}
+            >
+              {title}
+            </h2>
+          )}
+          {description && (
+            <p className="text-sm text-ngt-muted mt-1 max-w-2xl">{description}</p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          className="shrink-0 inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
+        >
+          <UserPlus size={13} /> Add User
+        </button>
+      </div>
+
+      <div className="bg-white border border-ngt-line rounded-lg shadow-card overflow-hidden">
+        {/* TOOLBAR */}
       <div className="border-b border-ngt-line">
         {/* Primary row: search + 2 most-used filters + more-toggle + clear + counter */}
         <div className="px-4 py-3 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -263,17 +304,8 @@ export function StudentRosterTable({ students }: Props) {
             onClick={() => copyList("phone")}
           />
 
-          <div className="ml-auto flex items-center gap-3">
-            <span className="text-[12px] text-ngt-muted">
-              {rows.length} of {roster.length} students
-            </span>
-            <button
-              type="button"
-              onClick={() => setAddOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
-            >
-              <UserPlus size={13} /> Add User
-            </button>
+          <div className="ml-auto text-[12px] text-ngt-muted">
+            {rows.length} of {roster.length} students
           </div>
         </div>
 
@@ -463,6 +495,7 @@ export function StudentRosterTable({ students }: Props) {
             })}
           </tbody>
         </table>
+      </div>
       </div>
 
       {addOpen && (

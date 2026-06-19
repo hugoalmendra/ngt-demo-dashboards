@@ -141,15 +141,7 @@ export default function SsmDashboard() {
 
       {/* ROSTER TABLE PREVIEW */}
       <section>
-        <div className="flex items-end justify-between mb-3">
-          <div>
-            <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold">
-              Roster
-            </div>
-            <h2 className="text-lg font-bold">All students</h2>
-          </div>
-        </div>
-        <StudentRosterTable students={STUDENTS} />
+        <StudentRosterTable students={STUDENTS} eyebrow="Roster" title="All students" />
       </section>
     </div>
   );
