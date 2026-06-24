@@ -7,10 +7,14 @@ import {
   Award,
   Clock,
   Contact,
+  ExternalLink,
   Flag,
   GraduationCap,
+  Mail,
   Pencil,
+  Phone,
   Plus,
+  School,
   Target,
   Trash2,
 } from "lucide-react";
@@ -19,11 +23,11 @@ import { StatusPill } from "@/components/status-pill";
 import { ProgressBar } from "@/components/progress-bar";
 import { ProgramTree } from "@/components/program-tree";
 import { CertBadge } from "@/components/cert-badge";
-import { DataRow } from "@/components/data-row";
 import { StatCard } from "@/components/stat-card";
 import { MilestoneList } from "@/components/milestone-list";
 import { EnrollmentCard } from "@/components/enrollment-card";
 import { ViewOrderButton } from "@/components/view-order-button";
+import { ExtendDueDatesButton } from "@/components/extend-due-dates-button";
 import { IauProgramDetailsPanel } from "@/components/iau-program-details-panel";
 import { formatDate, formatDelta } from "@/lib/format";
 
@@ -110,63 +114,170 @@ export function StudentProfileTabs({ student: s }: { student: Student }) {
 
 function ProfileTab({ s }: { s: Student }) {
   return (
-    <div className="space-y-6">
-      <div className="grid lg:grid-cols-2 gap-6 items-start">
-      <div className="space-y-6">
-        <Panel title="Contact" icon={<Contact size={14} />}>
-          <DataRow label="Email" value={s.email} />
-          <DataRow label="Phone Number" value={s.phoneNumber} />
-          <DataRow
-            label="Shipping Address"
-            value={
-              s.shippingAddress ? (
-                <span className="whitespace-pre-line leading-snug">{s.shippingAddress}</span>
-              ) : (
-                "—"
-              )
-            }
-          />
-          <DataRow label="T-Shirt Size" value={s.tshirtSize} />
-          <DataRow label="Sign-up Method" value={s.signUpMethod} />
-        </Panel>
+    <div className="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
+      <aside className="lg:sticky lg:top-6">
+        <StudentIdentityCard s={s} />
+      </aside>
 
-        <Panel title="100-Day Goal" icon={<Target size={14} />}>
-          <div className="py-2">
-            <div className="flex items-baseline justify-between mb-2">
-              <div className="text-sm font-semibold">Progress</div>
-              <div className="text-xl font-black tabular-nums">{s.hundredDayGoalPct}%</div>
-            </div>
-            <ProgressBar value={s.hundredDayGoalPct} variant="yellow" />
-            <p className="text-[12px] text-ngt-muted mt-2 leading-snug">
-              Tracks the student's commitment to complete their planned milestones within
-              100 days of enrollment.
-            </p>
+      <div className="space-y-6 min-w-0">
+        <DetailsCard s={s} />
+
+        <div className="grid lg:grid-cols-3 gap-6 items-start">
+          <div className="lg:col-span-2">
+            <IauProgramDetailsPanel
+              details={{
+                programOfStudy: s.programOfStudy,
+                iauProgramType: s.iauProgramType,
+                ngtSpecialization: s.ngtSpecialization,
+                iauSchoolTerm: s.iauSchoolTerm ?? "",
+              }}
+              semester={{ start: s.semesterStartDate, end: s.semesterEndDate }}
+            />
           </div>
-        </Panel>
+
+          <Panel title="100-Day Goal" icon={<Target size={14} />}>
+            <div className="py-2">
+              <div className="flex items-baseline justify-between mb-2">
+                <div className="text-sm font-semibold">Progress</div>
+                <div className="text-xl font-black tabular-nums">{s.hundredDayGoalPct}%</div>
+              </div>
+              <ProgressBar value={s.hundredDayGoalPct} variant="yellow" />
+              <p className="text-[12px] text-ngt-muted mt-2 leading-snug">
+                Tracks the student's commitment to complete their planned milestones within
+                100 days of enrollment.
+              </p>
+            </div>
+          </Panel>
+        </div>
+
+        <ProductEnrollmentSection s={s} />
+        <AwardsSection />
+      </div>
+    </div>
+  );
+}
+
+function StudentIdentityCard({ s }: { s: Student }) {
+  const isIau = !!(s.iauSchoolTerm || s.iauProgramType);
+  const initials = s.fullName
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("");
+
+  return (
+    <div className="bg-white border border-ngt-line rounded-lg shadow-card overflow-hidden">
+      <div className="px-5 py-6 border-b border-ngt-line bg-ngt-bg/30 text-center">
+        <div
+          className={clsx(
+            "w-20 h-20 rounded-full grid place-items-center text-white text-xl font-bold mx-auto",
+            s.avatarColor
+          )}
+        >
+          {initials}
+        </div>
+        <h1 className="text-lg font-black mt-4">{s.fullName}</h1>
+        <div className="mt-2 flex justify-center">
+          <StatusPill status={s.progressStatus} />
+        </div>
+        {isIau && (
+          <span className="mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-violet-50 text-violet-700 ring-1 ring-violet-200">
+            IAU Student
+          </span>
+        )}
       </div>
 
-      <div className="space-y-6">
-        <IauProgramDetailsPanel
-          details={{
-            programOfStudy: s.programOfStudy,
-            iauProgramType: s.iauProgramType,
-            ngtSpecialization: s.ngtSpecialization,
-            iauSchoolTerm: s.iauSchoolTerm ?? "",
-          }}
-          dates={{
-            semesterStartDate: s.semesterStartDate,
-            semesterEndDate: s.semesterEndDate,
-            recentDealCloseDate: s.recentDealCloseDate,
-            accountCreatedDate: s.accountCreatedDate,
-            lastActiveDate: s.lastActiveDate,
-            daysSinceActive: s.daysSinceActive,
-          }}
+      <div className="px-5 py-4 space-y-3 text-[13px]">
+        <div className="flex items-start gap-2 text-ngt-muted">
+          <Mail size={14} className="shrink-0 mt-0.5" />
+          <span className="break-all">{s.email}</span>
+        </div>
+        <div className="flex items-start gap-2 text-ngt-muted">
+          <Phone size={14} className="shrink-0 mt-0.5" />
+          <span>{s.phoneNumber || "—"}</span>
+        </div>
+        <div className="flex items-start gap-2 text-ngt-muted">
+          <School size={14} className="shrink-0 mt-0.5" />
+          <span>{s.cohort}</span>
+        </div>
+        <div className="flex items-start gap-2 text-ngt-muted">
+          <GraduationCap size={14} className="shrink-0 mt-0.5" />
+          <span>{s.programOfStudy}</span>
+        </div>
+      </div>
+
+      <div className="px-5 py-4 border-t border-ngt-line space-y-2">
+        {s.crmLink && (
+          <a
+            href={s.crmLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-md text-[11px] font-bold uppercase tracking-widest border border-ngt-yellow text-ngt-yellowDark hover:bg-ngt-yellow/10 transition"
+          >
+            <ExternalLink size={12} /> Open CRM
+          </a>
+        )}
+        <button
+          type="button"
+          className="w-full bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold tracking-widest h-9 rounded-md"
+        >
+          SEND EMAIL
+        </button>
+        <button
+          type="button"
+          className="w-full bg-white border border-ngt-line text-[11px] font-bold tracking-widest h-9 rounded-md hover:bg-ngt-bg"
+        >
+          SCHEDULE CALL
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DetailsCard({ s }: { s: Student }) {
+  return (
+    <div className="bg-white border border-ngt-line rounded-lg shadow-card">
+      <header className="px-4 py-3 border-b border-ngt-line flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded bg-ngt-bg text-ngt-muted grid place-items-center">
+            <Contact size={14} />
+          </div>
+          <h3 className="font-bold text-sm">Details</h3>
+        </div>
+        <button
+          type="button"
+          className="shrink-0 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest text-ngt-yellowDark border border-ngt-yellow hover:bg-ngt-yellow/10 transition"
+        >
+          <Pencil size={11} /> Edit
+        </button>
+      </header>
+      <div className="px-4 py-2">
+        <PanelRow
+          label="Shipping Address"
+          value={
+            s.shippingAddress ? (
+              <span className="whitespace-pre-line leading-snug">{s.shippingAddress}</span>
+            ) : null
+          }
         />
+        <PanelRow label="Sign-up Method" value={s.signUpMethod} />
+        <PanelRow label="T-Shirt Size" value={s.tshirtSize} />
+        <PanelRow label="Account Created" value={formatDate(s.accountCreatedDate)} />
+        <PanelRow label="Last Active" value={formatDate(s.lastActiveDate)} />
+        <PanelRow label="Days Since Active" value={`${s.daysSinceActive} days`} />
+        <PanelRow label="Recent Deal Close" value={formatDate(s.recentDealCloseDate)} />
       </div>
-      </div>
+    </div>
+  );
+}
 
-      <ProductEnrollmentSection s={s} />
-      <AwardsSection />
+function PanelRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline gap-3 py-2 border-b border-ngt-line last:border-b-0">
+      <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold w-[40%]">
+        {label}
+      </div>
+      <div className="text-sm text-ngt-text font-medium flex-1 min-w-0">{value || "—"}</div>
     </div>
   );
 }
@@ -317,6 +428,12 @@ function DataTrackingTab({
 }) {
   return (
     <div className="space-y-6">
+      <div className="flex items-center gap-3 flex-wrap">
+        <h2 className="text-xl font-black">{s.fullName}</h2>
+        <StatusPill status={s.progressStatus} />
+        <span className="text-[13px] text-ngt-muted">{s.programOfStudy}</span>
+      </div>
+
       {/* STATS OVERVIEW */}
       <section>
         <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold mb-3">
@@ -397,16 +514,19 @@ function DataTrackingTab({
 
       {/* MILESTONES */}
       <section>
-        <div className="flex items-baseline justify-between mb-3">
+        <div className="flex items-end justify-between mb-3 gap-3 flex-wrap">
           <div>
             <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold">
               Submissions & reviews
             </div>
             <h2 className="text-lg font-bold">Milestones</h2>
           </div>
-          <span className="text-[11px] text-ngt-muted">
-            Sorted by priority: Overdue → Ready for Review → Sent Back
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] text-ngt-muted hidden sm:inline">
+              Sorted by priority: Overdue → Ready for Review → Sent Back
+            </span>
+            <ExtendDueDatesButton milestones={s.milestones} variant="ssm" />
+          </div>
         </div>
         <MilestoneList
           milestones={s.milestones}

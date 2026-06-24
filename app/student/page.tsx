@@ -8,6 +8,7 @@ import { MilestoneList } from "@/components/milestone-list";
 import { EnrollmentCard } from "@/components/enrollment-card";
 import { ExtendDueDatesButton } from "@/components/extend-due-dates-button";
 import { formatDate } from "@/lib/format";
+import { isIauStudent } from "@/lib/student";
 
 export default function StudentDashboard() {
   const s = findStudent(CURRENT_STUDENT_ID)!;
@@ -146,7 +147,7 @@ export default function StudentDashboard() {
             <span className="text-[11px] text-ngt-muted hidden sm:inline">
               Reviewed manually by instructors and coaches
             </span>
-            <ExtendDueDatesButton milestones={s.milestones} />
+            {!isIauStudent(s) && <ExtendDueDatesButton milestones={s.milestones} />}
           </div>
         </div>
         <MilestoneList milestones={s.milestones} variant="student" title="Action items & submissions" />

@@ -84,6 +84,7 @@ export interface Student {
   shippingAddress?: string;        // multi-line; render as-is
   tshirtSize?: string;             // "S" | "M" | "L" | "XL" | "N/A"
   signUpMethod?: string;           // "Email" | "Google" | "Facebook" | "SSO" etc.
+  crmLink?: string;                // HubSpot / CRM contact URL for SSM quick access
 
   // ---- HubSpot / IAU fields requested by Paul/Andrew ----
   programOfStudy: string;          // "Cybersecurity Accelerator"

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { Briefcase, CalendarRange, Check, Pencil, X } from "lucide-react";
+import { Briefcase, Check, Pencil, X } from "lucide-react";
 import { formatDate } from "@/lib/format";
 
 export interface IauProgramDetails {
@@ -10,15 +10,6 @@ export interface IauProgramDetails {
   iauProgramType: string;
   ngtSpecialization: string;
   iauSchoolTerm: string;
-}
-
-export interface ProgramDates {
-  semesterStartDate?: string;
-  semesterEndDate?: string;
-  recentDealCloseDate?: string;
-  accountCreatedDate?: string;
-  lastActiveDate?: string;
-  daysSinceActive: number;
 }
 
 interface FieldDef {
@@ -77,17 +68,17 @@ function optionsWithCurrent(options: string[], current: string) {
 
 export function IauProgramDetailsPanel({
   details,
-  dates,
+  semester,
 }: {
   details: IauProgramDetails;
-  dates: ProgramDates;
+  semester: { start?: string; end?: string };
 }) {
   const [saved, setSaved] = useState<IauProgramDetails>(details);
   const [draft, setDraft] = useState<IauProgramDetails>(details);
   const [editing, setEditing] = useState(false);
   const [termDates, setTermDates] = useState({
-    start: dates.semesterStartDate,
-    end: dates.semesterEndDate,
+    start: semester.start,
+    end: semester.end,
   });
 
   const startEdit = () => {
@@ -117,7 +108,6 @@ export function IauProgramDetailsPanel({
   const draftTermDates = TERMS[draft.iauSchoolTerm];
 
   return (
-    <>
       <div className="bg-white border border-ngt-line rounded-lg shadow-card">
         <header className="px-4 py-3 border-b border-ngt-line flex items-start justify-between gap-3">
           <div>
@@ -182,6 +172,9 @@ export function IauProgramDetailsPanel({
               </div>
             </div>
           ))}
+
+          <DatesRow label="Semester Start" value={formatDate(termDates.start)} />
+          <DatesRow label="Semester End" value={formatDate(termDates.end)} />
         </div>
 
         {editing && (
@@ -203,26 +196,6 @@ export function IauProgramDetailsPanel({
           </footer>
         )}
       </div>
-
-      <div className="bg-white border border-ngt-line rounded-lg shadow-card">
-        <header className="px-4 py-3 border-b border-ngt-line">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-ngt-bg text-ngt-muted grid place-items-center">
-              <CalendarRange size={14} />
-            </div>
-            <h3 className="font-bold text-sm">Dates</h3>
-          </div>
-        </header>
-        <div className="px-4 py-2">
-          <DatesRow label="Semester Start" value={formatDate(termDates.start)} />
-          <DatesRow label="Semester End" value={formatDate(termDates.end)} />
-          <DatesRow label="Recent Deal Close" value={formatDate(dates.recentDealCloseDate)} />
-          <DatesRow label="Account Created" value={formatDate(dates.accountCreatedDate)} />
-          <DatesRow label="Last Active" value={formatDate(dates.lastActiveDate)} />
-          <DatesRow label="Days Since Active" value={`${dates.daysSinceActive} days`} />
-        </div>
-      </div>
-    </>
   );
 }
 

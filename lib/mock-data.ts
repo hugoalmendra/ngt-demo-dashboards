@@ -334,6 +334,7 @@ export const STUDENTS: Student[] = [
     shippingAddress: "742 Evergreen Terrace\nJacksonville, FL 32246\nUNITED STATES",
     tshirtSize: "L",
     signUpMethod: "Email",
+    crmLink: "https://app.hubspot.com/contacts/123456/contact/kevin-stewart",
     primaryEnrollmentStatus: "Active",
     primaryOrder: {
       paymentPlan: "$249/mo × 6",

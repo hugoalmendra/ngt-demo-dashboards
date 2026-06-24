@@ -5,10 +5,17 @@ import { CalendarClock } from "lucide-react";
 import type { Milestone } from "@/lib/types";
 import { ExtendDueDatesModal } from "./extend-due-dates-modal";
 
-export function ExtendDueDatesButton({ milestones }: { milestones: Milestone[] }) {
+export function ExtendDueDatesButton({
+  milestones,
+  variant = "student",
+}: {
+  milestones: Milestone[];
+  variant?: "student" | "ssm";
+}) {
   const [open, setOpen] = useState(false);
   const extendableCount = milestones.filter((m) => m.status !== "Complete").length;
   const disabled = extendableCount === 0;
+  const label = variant === "ssm" ? "Extend Milestones" : "Extend Due Dates";
   return (
     <>
       <button
@@ -18,6 +25,8 @@ export function ExtendDueDatesButton({ milestones }: { milestones: Milestone[] }
         title={
           disabled
             ? "No pending milestones to extend"
+            : variant === "ssm"
+            ? `Extend due dates for ${extendableCount} pending milestone(s)`
             : `Request a new due date for any of your ${extendableCount} pending milestone(s)`
         }
         className={
@@ -27,7 +36,7 @@ export function ExtendDueDatesButton({ milestones }: { milestones: Milestone[] }
         }
       >
         <CalendarClock size={13} />
-        Extend Due Dates
+        {label}
       </button>
       {open && (
         <ExtendDueDatesModal milestones={milestones} onClose={() => setOpen(false)} />

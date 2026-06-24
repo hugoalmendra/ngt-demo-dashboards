@@ -54,6 +54,7 @@ function studentFromNewUser(u: NewUser, index: number): Student {
     shippingAddress: addressParts.length ? addressParts.join("\n") : undefined,
     tshirtSize: u.tshirtSize,
     signUpMethod: u.foundUs || undefined,
+    crmLink: u.crmLink.trim() || undefined,
     programOfStudy: u.iauStudent && u.iauProgramOfStudy ? u.iauProgramOfStudy : "Unassigned",
     iauProgramType: u.iauStudent && u.iauProgramType ? u.iauProgramType : "—",
     ngtSpecialization: "—",

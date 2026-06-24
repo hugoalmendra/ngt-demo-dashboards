@@ -25,6 +25,7 @@ export interface NewUser {
   tshirtSize: string;
   foundUs: string;
   referralCode: string;
+  crmLink: string;
 }
 
 interface Props {
@@ -111,6 +112,7 @@ export function AddUserModal({ onClose, onCreate }: Props) {
     tshirtSize: "M",
     foundUs: "",
     referralCode: "",
+    crmLink: "",
   });
   const [submitted, setSubmitted] = useState(false);
 
@@ -371,6 +373,15 @@ export function AddUserModal({ onClose, onCreate }: Props) {
             </Field>
           </div>
 
+          <Field label="CRM Link">
+            <TextInput
+              type="url"
+              value={form.crmLink}
+              onChange={(v) => set("crmLink", v)}
+              placeholder="https://app.hubspot.com/contacts/..."
+            />
+          </Field>
+
           {/* Credit card */}
           <div className="pt-4 border-t border-ngt-line flex items-center gap-4">
             <span className="text-sm text-ngt-text font-medium">Credit card:</span>
@@ -445,15 +456,18 @@ function TextInput({
   value,
   onChange,
   type = "text",
+  placeholder,
 }: {
   value: string;
   onChange: (v: string) => void;
   type?: string;
+  placeholder?: string;
 }) {
   return (
     <input
       type={type}
       value={value}
+      placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
       className="w-full h-10 px-3 rounded-md border border-ngt-line text-sm focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40"
     />
