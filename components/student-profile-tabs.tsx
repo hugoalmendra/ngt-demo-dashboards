@@ -4,13 +4,17 @@ import { useState } from "react";
 import clsx from "clsx";
 import {
   Activity,
+  Award,
   Clock,
   Contact,
   Flag,
   GraduationCap,
+  Pencil,
+  Plus,
   Target,
+  Trash2,
 } from "lucide-react";
-import type { Student } from "@/lib/types";
+import type { Milestone, ProgramEnrollment, Student } from "@/lib/types";
 import { StatusPill } from "@/components/status-pill";
 import { ProgressBar } from "@/components/progress-bar";
 import { ProgramTree } from "@/components/program-tree";
@@ -28,6 +32,21 @@ const ENROLLMENT_STATUS_STYLES: Record<string, string> = {
   Paused: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
   Expired: "bg-rose-50 text-rose-700 ring-1 ring-rose-200",
   Completed: "bg-ngt-yellow/15 text-ngt-yellowDark ring-1 ring-ngt-yellow/40",
+};
+
+const ENROLLMENT_STATUS_TEXT: Record<string, string> = {
+  Active: "text-emerald-600",
+  Paused: "text-amber-600",
+  Expired: "text-rose-600",
+  Completed: "text-ngt-yellowDark",
+};
+
+const MILESTONE_DOT_STYLES: Record<string, string> = {
+  Complete: "bg-emerald-500 text-white",
+  "Ready for Review": "bg-amber-400 text-black",
+  Overdue: "bg-rose-500 text-white",
+  "Sent Back": "bg-orange-400 text-white",
+  Incomplete: "bg-ngt-bg text-ngt-muted ring-1 ring-ngt-line",
 };
 
 type TabKey = "profile" | "data" | "log" | "referral";
@@ -91,7 +110,8 @@ export function StudentProfileTabs({ student: s }: { student: Student }) {
 
 function ProfileTab({ s }: { s: Student }) {
   return (
-    <div className="grid lg:grid-cols-2 gap-6 items-start">
+    <div className="space-y-6">
+      <div className="grid lg:grid-cols-2 gap-6 items-start">
       <div className="space-y-6">
         <Panel title="Contact" icon={<Contact size={14} />}>
           <DataRow label="Email" value={s.email} />
@@ -143,6 +163,145 @@ function ProfileTab({ s }: { s: Student }) {
           }}
         />
       </div>
+      </div>
+
+      <ProductEnrollmentSection s={s} />
+      <AwardsSection />
+    </div>
+  );
+}
+
+function ProductEnrollmentSection({ s }: { s: Student }) {
+  return (
+    <section>
+      <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold mb-3">
+        Product Enrollment
+      </div>
+      <div className="bg-white border border-ngt-line rounded-lg shadow-card divide-y divide-ngt-line">
+        <EnrollmentRow
+          name={s.programOfStudy}
+          cohort={s.cohort}
+          milestones={s.milestones}
+          status={s.primaryEnrollmentStatus}
+          order={s.primaryOrder}
+        />
+        {s.additionalEnrollments?.map((e) => (
+          <EnrollmentRow
+            key={e.id}
+            name={e.name}
+            cohort={e.cohort}
+            milestones={e.milestones ?? []}
+            status={e.status}
+            order={e.order}
+          />
+        ))}
+      </div>
+      <button
+        type="button"
+        className="mt-4 inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
+      >
+        <Plus size={13} /> Add-on Product (Sales)
+      </button>
+    </section>
+  );
+}
+
+function EnrollmentRow({
+  name,
+  cohort,
+  milestones,
+  status,
+  order,
+}: {
+  name: string;
+  cohort: string;
+  milestones: Milestone[];
+  status: ProgramEnrollment["status"];
+  order?: ProgramEnrollment["order"];
+}) {
+  return (
+    <div className="px-5 py-4 grid grid-cols-1 md:grid-cols-[1.6fr_1.2fr_1.4fr_0.8fr_auto] gap-4 items-center">
+      <Cell label="Name">
+        <div className="font-semibold text-sm leading-snug">{name}</div>
+      </Cell>
+      <Cell label="Cohort">
+        <div className="flex items-center gap-1.5 text-sm">
+          <span className="truncate">{cohort}</span>
+          <button
+            type="button"
+            aria-label="Edit cohort"
+            className="text-ngt-muted hover:text-ngt-yellowDark shrink-0"
+          >
+            <Pencil size={12} />
+          </button>
+        </div>
+      </Cell>
+      <Cell label="Milestones">
+        {milestones.length > 0 ? (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {milestones.map((m, i) => (
+              <span
+                key={m.id}
+                title={`${m.name} — ${m.status}`}
+                className={clsx(
+                  "w-6 h-6 rounded-full grid place-items-center text-[11px] font-bold",
+                  MILESTONE_DOT_STYLES[m.status] ?? MILESTONE_DOT_STYLES.Incomplete
+                )}
+              >
+                {i + 1}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <span className="text-sm text-ngt-muted">—</span>
+        )}
+      </Cell>
+      <Cell label="Status">
+        <span className={clsx("text-sm font-semibold", ENROLLMENT_STATUS_TEXT[status])}>
+          {status}
+        </span>
+      </Cell>
+      <div className="flex items-center gap-2 justify-start md:justify-end">
+        {order ? (
+          <ViewOrderButton productName={name} status={status} order={order} />
+        ) : (
+          <span className="text-[11px] text-ngt-muted">No order</span>
+        )}
+        <button
+          type="button"
+          aria-label="Remove enrollment"
+          className="w-9 h-9 grid place-items-center rounded-md border border-ngt-line text-ngt-muted hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 transition"
+        >
+          <Trash2 size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AwardsSection() {
+  return (
+    <section>
+      <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold mb-3">
+        Awards
+      </div>
+      <button
+        type="button"
+        className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
+      >
+        <Award size={13} /> Issue Cert or Award
+      </button>
+    </section>
+  );
+}
+
+function Cell({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-widest text-ngt-muted font-semibold mb-1">
+        {label}
+      </div>
+      {children}
     </div>
   );
 }
