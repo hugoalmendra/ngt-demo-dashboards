@@ -9,7 +9,6 @@ import {
   Calendar,
   GraduationCap,
   School,
-  CalendarRange,
   Activity,
   Flag,
   Contact,
@@ -247,19 +246,17 @@ export default function StudentDetail({ params }: { params: { id: string } }) {
               programOfStudy: s.programOfStudy,
               iauProgramType: s.iauProgramType,
               ngtSpecialization: s.ngtSpecialization,
-              vaBenefitChapter: s.vaBenefitChapter ?? "",
               iauSchoolTerm: s.iauSchoolTerm ?? "",
             }}
+            dates={{
+              semesterStartDate: s.semesterStartDate,
+              semesterEndDate: s.semesterEndDate,
+              recentDealCloseDate: s.recentDealCloseDate,
+              accountCreatedDate: s.accountCreatedDate,
+              lastActiveDate: s.lastActiveDate,
+              daysSinceActive: s.daysSinceActive,
+            }}
           />
-
-          <Panel title="Dates" icon={<CalendarRange size={14} />}>
-            <DataRow label="Semester Start" value={formatDate(s.semesterStartDate)} />
-            <DataRow label="Semester End" value={formatDate(s.semesterEndDate)} />
-            <DataRow label="Recent Deal Close" value={formatDate(s.recentDealCloseDate)} />
-            <DataRow label="Account Created" value={formatDate(s.accountCreatedDate)} />
-            <DataRow label="Last Active" value={formatDate(s.lastActiveDate)} />
-            <DataRow label="Days Since Active" value={`${s.daysSinceActive} days`} />
-          </Panel>
 
           <Panel title="100-Day Goal" icon={<Target size={14} />}>
             <div className="py-2">
