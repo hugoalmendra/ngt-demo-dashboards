@@ -1,4 +1,5 @@
-import { Award, BookOpen, CalendarDays, Flag, GraduationCap, Target, Trophy } from "lucide-react";
+import { Award, BookOpen, CalendarDays, Flag, GraduationCap, Target, TrendingUp, Trophy } from "lucide-react";
+import Link from "next/link";
 import { CURRENT_STUDENT_ID, findStudent } from "@/lib/mock-data";
 import { ProgramTree } from "@/components/program-tree";
 import { ProgressBar } from "@/components/progress-bar";
@@ -8,7 +9,7 @@ import { MilestoneList } from "@/components/milestone-list";
 import { EnrollmentCard } from "@/components/enrollment-card";
 import { ExtendDueDatesButton } from "@/components/extend-due-dates-button";
 import { formatDate } from "@/lib/format";
-import { isIauStudent } from "@/lib/student";
+import { isIauStudent, inferCareerStage } from "@/lib/student";
 
 export default function StudentDashboard() {
   const s = findStudent(CURRENT_STUDENT_ID)!;
@@ -110,6 +111,34 @@ export default function StudentDashboard() {
           tone={s.fsnaDeltaDays >= 0 ? "green" : "red"}
         />
       </div>
+
+      {/* CAREER PATH PREVIEW */}
+      <Link
+        href="/student/career"
+        className="block bg-[#0B1B35] border border-[#1a3a6b] rounded-lg shadow-card overflow-hidden hover:border-ngt-yellow/40 transition group"
+      >
+        <div className="px-5 py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-md bg-ngt-yellow/15 text-ngt-yellow grid place-items-center shrink-0">
+              <TrendingUp size={18} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-widest text-white/50 font-semibold">
+                Career Success
+              </div>
+              <div className="font-bold text-white text-sm mt-0.5">
+                View your full career pyramid
+              </div>
+              <p className="text-[12px] text-white/60 mt-1 truncate">
+                You&apos;re on Stage {String(inferCareerStage(s)).padStart(2, "0")} — see what&apos;s next
+              </p>
+            </div>
+          </div>
+          <span className="shrink-0 text-[11px] font-bold uppercase tracking-widest text-ngt-yellow group-hover:text-white transition">
+            Open →
+          </span>
+        </div>
+      </Link>
 
       {/* CLARIFIED TREE */}
       <section>
