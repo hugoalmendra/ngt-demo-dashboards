@@ -1,13 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type SyntheticEvent } from "react";
 import clsx from "clsx";
-import {
-  CAREER_STAGES,
-  PYRAMID_LAYER_HEIGHTS,
-  PYRAMID_LAYER_WIDTHS,
-  type CareerStage,
-} from "@/lib/career-path";
+import { CAREER_STAGES, type CareerStage } from "@/lib/career-path";
 
 interface Props {
   initialStage?: number;
@@ -77,7 +72,7 @@ export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-0">
-        <div className="px-4 md:px-8 py-10 flex items-end justify-center min-h-[480px] border-b lg:border-b-0 lg:border-r border-white/10 bg-[#081528]">
+        <div className="px-4 md:px-8 py-8 flex flex-col items-center justify-center min-h-[480px] border-b lg:border-b-0 lg:border-r border-white/10 bg-[#081528]">
           <Pyramid3D selected={selected} onSelect={setSelected} />
         </div>
         <div className="px-6 py-8 flex items-center bg-[#0B1B35]">
@@ -88,6 +83,28 @@ export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Pyramid                                                             */
+/* ------------------------------------------------------------------ */
+/*
+ * Uses the same pyramid artwork as ngt.academy (public/pyramid.svg, exported
+ * from Figma). The SVG ships two versions of every row:
+ *
+ *   #pyramid-row-N        the row in its base (unlit) state
+ *   #pyramid-row-hover-N  the same row fully lit, stacked on top
+ *
+ * Exactly like the marketing site, we never redraw anything: we just set the
+ * opacity of the hover layers for rows 1…N so the pyramid lights up
+ * cumulatively from the base up to the active stage.
+ *
+ * The file is ~560 KB (it embeds the badge PNGs), so it is fetched at runtime
+ * rather than bundled, and the container reserves the SVG's aspect ratio so
+ * the layout doesn't jump while it loads.
+ */
+
+const SVG_ASPECT = "799 / 701";
+const ROW_ID = /^pyramid-row-(\d+)$/;
+
 function Pyramid3D({
   selected,
   onSelect,
@@ -95,196 +112,130 @@ function Pyramid3D({
   selected: number;
   onSelect: (id: number) => void;
 }) {
-  const layers = [...CAREER_STAGES].reverse();
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<number | null>(null);
+  const [ready, setReady] = useState(false);
+  const active = hover ?? selected;
+
+  // Load and prepare the artwork once.
+  useEffect(() => {
+    let cancelled = false;
+    const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
+    fetch(`${base}/pyramid.svg`)
+      .then((r) => (r.ok ? r.text() : Promise.reject(r.status)))
+      .then((markup) => {
+        const host = hostRef.current;
+        if (cancelled || !host) return;
+
+        host.innerHTML = markup;
+
+        const svg = host.querySelector("svg");
+        if (svg) {
+          svg.removeAttribute("width");
+          svg.removeAttribute("height");
+          svg.style.width = "100%";
+          svg.style.height = "auto";
+          svg.style.display = "block";
+          svg.setAttribute("role", "group");
+          svg.setAttribute("aria-label", "Career path pyramid");
+        }
+
+        const reduceMotion =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+        // Lit overlays: purely visual, never intercept the pointer.
+        host.querySelectorAll<SVGGElement>('[id^="pyramid-row-hover-"]').forEach((layer) => {
+          layer.style.pointerEvents = "none";
+          layer.style.opacity = "0";
+          if (!reduceMotion) layer.style.transition = "opacity 220ms ease";
+        });
+
+        // Base rows: the interactive targets.
+        host.querySelectorAll<SVGGElement>('[id^="pyramid-row-"]').forEach((row) => {
+          const match = ROW_ID.exec(row.id);
+          if (!match) return;
+          const stageInfo = CAREER_STAGES.find((s) => s.id === Number(match[1]));
+          row.style.cursor = "pointer";
+          row.style.outline = "none";
+          row.setAttribute("role", "button");
+          row.setAttribute("tabindex", "0");
+          if (stageInfo) row.setAttribute("aria-label", `${stageInfo.label}: ${stageInfo.title}`);
+        });
+
+        setReady(true);
+      })
+      .catch(() => {
+        /* Leave the reserved space empty; the stepper above still works. */
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Light rows 1…active by toggling the hover overlays.
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!ready || !host) return;
+    for (const s of CAREER_STAGES) {
+      const layer = host.querySelector<SVGGElement>(`#pyramid-row-hover-${s.id}`);
+      if (layer) layer.style.opacity = s.id <= active ? "1" : "0";
+    }
+  }, [active, ready]);
+
+  // Resolve which row an event landed on (overlays are pointer-events: none,
+  // so the target is always a base row or nothing).
+  const rowFromEvent = (e: SyntheticEvent) => {
+    const el = (e.target as Element | null)?.closest('[id^="pyramid-row-"]');
+    const match = el ? ROW_ID.exec(el.id) : null;
+    return match ? Number(match[1]) : null;
+  };
 
   return (
-    <div
-      className="flex flex-col items-center w-full max-w-[360px]"
-      style={{ perspective: "800px" }}
-    >
-      {layers.map((stage) => {
-        const idx = stage.id - 1;
-        const width = PYRAMID_LAYER_WIDTHS[idx];
-        const height = PYRAMID_LAYER_HEIGHTS[idx];
-        const isSelected = selected === stage.id;
-
-        return (
-          <PyramidLayer
-            key={stage.id}
-            stage={stage}
-            width={width}
-            height={height}
-            isSelected={isSelected}
-            onSelect={() => onSelect(stage.id)}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-function PyramidLayer({
-  stage,
-  width,
-  height,
-  isSelected,
-  onSelect,
-}: {
-  stage: CareerStage;
-  width: number;
-  height: number;
-  isSelected: boolean;
-  onSelect: () => void;
-}) {
-  const sideDepth = Math.max(10, Math.round(width * 0.055));
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="relative block mx-auto text-left transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-ngt-yellow focus-visible:ring-offset-2 focus-visible:ring-offset-[#081528]"
-      style={{
-        width: width + sideDepth,
-        height,
-        marginBottom: stage.id === 1 ? 0 : -1,
-      }}
-      aria-label={`${stage.label}: ${stage.title}`}
-    >
-      {/* Right 3D face */}
+    <div className="flex flex-col items-center w-full max-w-[420px]">
       <div
-        className="absolute top-[2px] bottom-0 rounded-r-[2px]"
-        style={{
-          right: 0,
-          width: sideDepth,
-          background: isSelected
-            ? "linear-gradient(180deg, #c9940a 0%, #7a5606 100%)"
-            : "linear-gradient(180deg, #a67c00 0%, #6b4d05 100%)",
-          transform: "skewY(-14deg)",
-          transformOrigin: "top left",
+        ref={hostRef}
+        className="w-full"
+        style={{ aspectRatio: SVG_ASPECT }}
+        onClick={(e) => {
+          const n = rowFromEvent(e);
+          if (n) onSelect(n);
         }}
-        aria-hidden
+        onMouseOver={(e) => {
+          const n = rowFromEvent(e);
+          if (n) setHover(n);
+        }}
+        onMouseLeave={() => setHover(null)}
+        onFocus={(e) => {
+          const n = rowFromEvent(e);
+          if (n) setHover(n);
+        }}
+        onBlur={() => setHover(null)}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          const n = rowFromEvent(e);
+          if (n) {
+            e.preventDefault();
+            onSelect(n);
+          }
+        }}
       />
 
-      {/* Front face */}
-      <div
-        className={clsx(
-          "relative flex items-center justify-center overflow-hidden h-full transition-shadow duration-200",
-          isSelected &&
-            "shadow-[0_0_28px_rgba(255,193,7,0.55),0_4px_20px_rgba(255,143,0,0.35)] z-10"
-        )}
-        style={{
-          width,
-          clipPath: "polygon(6% 0, 94% 0, 100% 100%, 0% 100%)",
-          background: isSelected
-            ? "linear-gradient(180deg, #ffe082 0%, #ffc107 45%, #ff9800 100%)"
-            : "linear-gradient(180deg, #ffd54f 0%, #ffc107 50%, #e6a800 100%)",
-          borderTop: isSelected ? "2px solid #fff8e1" : "1px solid rgba(255,255,255,0.25)",
-        }}
-      >
-        <LayerContent stage={stage} compact={width < 180} />
-      </div>
-    </button>
-  );
-}
-
-function LayerContent({ stage, compact }: { stage: CareerStage; compact?: boolean }) {
-  if (stage.pyramidVisual === "fsna") {
-    return <FsnaBadge />;
-  }
-  if (stage.pyramidVisual === "vendor-badges") {
-    return (
-      <div className={clsx("flex items-center justify-center gap-1 px-1", compact && "scale-90")}>
-        <VendorBadge vendor="CompTIA" name="Network+" accent="red" />
-        <VendorBadge vendor="Cisco" name="CCNA" accent="blue" />
-        <VendorBadge vendor="CompTIA" name="Security+" accent="red" />
-      </div>
-    );
-  }
-  if (stage.pyramidVisual === "ngt-badges") {
-    return (
-      <div className={clsx("flex items-center justify-center gap-1 px-1", compact && "scale-90")}>
-        <NgtCertBadge code="FSNP" />
-        <NgtCertBadge code="NCSA" />
-        <NgtCertBadge code="AIS" />
-      </div>
-    );
-  }
-
-  return (
-    <span
-      className={clsx(
-        "px-2 text-center font-bold uppercase tracking-wide text-[#3e2723] leading-tight",
-        compact ? "text-[7px]" : widthClass(stage.pyramidLabel.length)
-      )}
-    >
-      {stage.pyramidLabel}
-    </span>
-  );
-}
-
-function widthClass(len: number) {
-  if (len > 28) return "text-[6px] md:text-[7px]";
-  if (len > 18) return "text-[7px] md:text-[8px]";
-  return "text-[8px] md:text-[9px]";
-}
-
-function FsnaBadge() {
-  return (
-    <div className="flex items-center gap-2 px-2">
-      <div className="w-9 h-9 rounded bg-[#3e2723]/90 grid place-items-center shrink-0 border border-[#5d4037]">
-        <span className="text-ngt-yellow font-black text-lg leading-none">N</span>
-      </div>
-      <div className="text-left leading-none">
-        <div className="text-[13px] font-black text-[#3e2723] tracking-tight">FSNA</div>
-        <div className="text-[8px] font-bold text-[#5d4037] uppercase tracking-widest mt-0.5">
-          Certified
-        </div>
+      {/* Fraction pager, as on the marketing site */}
+      <div className="mt-4 text-[12px] tabular-nums tracking-widest text-white/60 font-semibold">
+        <span className="text-ngt-yellow">{String(active).padStart(2, "0")}</span>
+        <span className="mx-1.5 text-white/30">of</span>
+        <span>{String(CAREER_STAGES.length).padStart(2, "0")}</span>
       </div>
     </div>
   );
 }
 
-function VendorBadge({
-  vendor,
-  name,
-  accent,
-}: {
-  vendor: string;
-  name: string;
-  accent: "red" | "blue";
-}) {
-  const accentBg = accent === "red" ? "bg-[#c62828]" : "bg-[#1565c0]";
-  return (
-    <div className="w-[52px] h-[38px] rounded-sm bg-white border border-black/10 overflow-hidden flex flex-col shadow-sm">
-      <div className={clsx("h-3 flex items-center justify-center", accentBg)}>
-        <span className="text-[5px] font-bold text-white uppercase tracking-tighter truncate px-0.5">
-          {vendor}
-        </span>
-      </div>
-      <div className="flex-1 grid place-items-center px-0.5">
-        <span className="text-[6px] font-bold text-[#212121] text-center leading-tight">
-          {name}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function NgtCertBadge({ code }: { code: string }) {
-  return (
-    <div className="w-[52px] h-[38px] rounded-sm bg-white border border-black/10 overflow-hidden flex shadow-sm">
-      <div className="w-5 bg-[#3e2723] grid place-items-center shrink-0">
-        <span className="text-ngt-yellow font-black text-[10px] leading-none">N</span>
-      </div>
-      <div className="flex-1 flex flex-col justify-center px-0.5 min-w-0">
-        <span className="text-[7px] font-black text-[#212121] leading-none">{code}</span>
-        <span className="text-[5px] font-bold text-[#616161] uppercase tracking-tighter leading-tight mt-0.5">
-          Certified
-        </span>
-      </div>
-    </div>
-  );
-}
+/* ------------------------------------------------------------------ */
+/* Stage detail                                                        */
+/* ------------------------------------------------------------------ */
 
 function StageDetail({ stage }: { stage: CareerStage }) {
   return (
