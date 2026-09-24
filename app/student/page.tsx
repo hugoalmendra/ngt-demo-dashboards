@@ -9,7 +9,7 @@ import { EnrollmentCard } from "@/components/enrollment-card";
 import { ExtendDueDatesButton } from "@/components/extend-due-dates-button";
 import { CareerPathCollapsible } from "@/components/career-path-collapsible";
 import { formatDate } from "@/lib/format";
-import { isIauStudent, inferCareerStage } from "@/lib/student";
+import { isIauStudent, inferCareerStage, completedCareerStages } from "@/lib/student";
 
 export default function StudentDashboard() {
   const s = findStudent(CURRENT_STUDENT_ID)!;
@@ -113,7 +113,10 @@ export default function StudentDashboard() {
       </div>
 
       {/* CAREER PATH (collapsible) */}
-      <CareerPathCollapsible currentStage={inferCareerStage(s)} />
+      <CareerPathCollapsible
+        currentStage={inferCareerStage(s)}
+        completedStages={completedCareerStages(s)}
+      />
 
       {/* CLARIFIED TREE */}
       <section>

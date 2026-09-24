@@ -5,7 +5,13 @@ import clsx from "clsx";
 import { ChevronDown, TrendingUp } from "lucide-react";
 import { CareerPathPyramid } from "@/components/career-path-pyramid";
 
-export function CareerPathCollapsible({ currentStage }: { currentStage: number }) {
+export function CareerPathCollapsible({
+  currentStage,
+  completedStages = [],
+}: {
+  currentStage: number;
+  completedStages?: number[];
+}) {
   const [open, setOpen] = useState(false);
   // Mount the pyramid on first open only, then keep it so the SVG isn't refetched.
   const [mounted, setMounted] = useState(false);
@@ -43,6 +49,14 @@ export function CareerPathCollapsible({ currentStage }: { currentStage: number }
               {open ? "Your career pyramid" : "View your full career pyramid"}
             </div>
             <p className="text-[12px] text-white/60 mt-1 truncate">
+              {completedStages.length > 0 && (
+                <span className="text-emerald-400 font-semibold">
+                  {completedStages.length === 1
+                    ? `Stage ${String(completedStages[0]).padStart(2, "0")} complete`
+                    : `${completedStages.length} stages complete`}
+                  {" · "}
+                </span>
+              )}
               You&apos;re on Stage {String(currentStage).padStart(2, "0")} — see what&apos;s next
             </p>
           </div>
@@ -67,7 +81,11 @@ export function CareerPathCollapsible({ currentStage }: { currentStage: number }
         <div className="overflow-hidden">
           {mounted && (
             <div className="px-3 pb-3 md:px-4 md:pb-4">
-              <CareerPathPyramid initialStage={currentStage} currentStage={currentStage} />
+              <CareerPathPyramid
+                initialStage={currentStage}
+                currentStage={currentStage}
+                completedStages={completedStages}
+              />
             </div>
           )}
         </div>

@@ -369,6 +369,7 @@ export const STUDENTS: Student[] = [
       SecurityPlus: { progressPct: 81, earned: false },
       NCSA: { progressPct: 55, earned: false },
       NetworkPlus: { progressPct: 100, earned: true, issuedAt: "2025-08-14" },
+      FSNA: { progressPct: 100, earned: true, issuedAt: "2025-05-02" },
     }),
     fsnaDeltaDays: 4,
     progressStatus: deriveStatus(4, 81),

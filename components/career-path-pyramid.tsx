@@ -2,16 +2,20 @@
 
 import { useEffect, useRef, useState, type SyntheticEvent } from "react";
 import clsx from "clsx";
+import { Check } from "lucide-react";
 import { CAREER_STAGES, type CareerStage } from "@/lib/career-path";
 
 interface Props {
   initialStage?: number;
   currentStage?: number;
+  /** Stage ids the student has completed; shown in green. */
+  completedStages?: number[];
 }
 
-export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
+export function CareerPathPyramid({ initialStage = 1, currentStage, completedStages = [] }: Props) {
   const [selected, setSelected] = useState(initialStage);
   const stage = CAREER_STAGES.find((s) => s.id === selected) ?? CAREER_STAGES[0];
+  const isDone = (id: number) => completedStages.includes(id);
 
   return (
     <div className="rounded-xl overflow-hidden border border-[#1a3a6b] bg-[#0B1B35] text-white shadow-card">
@@ -33,6 +37,7 @@ export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
           {CAREER_STAGES.map((s, i) => {
             const reached = s.id <= selected;
             const isCurrent = s.id === selected;
+            const done = isDone(s.id);
             return (
               <div key={s.id} className="flex items-center">
                 <button
@@ -40,23 +45,34 @@ export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
                   onClick={() => setSelected(s.id)}
                   className={clsx(
                     "relative z-10 w-9 h-9 rounded-full text-[11px] font-bold tabular-nums transition shrink-0",
-                    reached
-                      ? "bg-ngt-yellow text-[#0B1B35]"
-                      : "bg-[#0a1628] text-ngt-yellow border border-ngt-yellow/60",
+                    done
+                      ? "bg-emerald-500 text-white"
+                      : reached
+                        ? "bg-ngt-yellow text-[#0B1B35]"
+                        : "bg-[#0a1628] text-ngt-yellow border border-ngt-yellow/60",
                     isCurrent && "ring-2 ring-white/40 ring-offset-2 ring-offset-[#0B1B35]",
                     currentStage === s.id &&
                       !isCurrent &&
                       "ring-1 ring-emerald-400/50 ring-offset-1 ring-offset-[#0B1B35]"
                   )}
-                  title={s.title}
+                  title={done ? `${s.title} — completed` : s.title}
+                  aria-label={`${s.label}: ${s.title}${done ? " (completed)" : ""}`}
                 >
-                  {String(s.id).padStart(2, "0")}
+                  {done ? (
+                    <Check size={16} strokeWidth={3} className="mx-auto" />
+                  ) : (
+                    String(s.id).padStart(2, "0")
+                  )}
                 </button>
                 {i < CAREER_STAGES.length - 1 && (
                   <div
                     className={clsx(
                       "w-6 md:w-10 h-0.5 shrink-0 -mx-0.5",
-                      s.id < selected ? "bg-ngt-yellow" : "bg-ngt-yellow/25"
+                      done && isDone(s.id + 1)
+                        ? "bg-emerald-500"
+                        : s.id < selected
+                          ? "bg-ngt-yellow"
+                          : "bg-ngt-yellow/25"
                     )}
                   />
                 )}
@@ -66,6 +82,8 @@ export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
         </div>
         {currentStage && (
           <p className="text-[11px] text-emerald-400/90 mt-3 text-center">
+            {completedStages.length > 0 &&
+              `${completedStages.length} of ${CAREER_STAGES.length} stages complete · `}
             You are currently on Stage {String(currentStage).padStart(2, "0")}
           </p>
         )}
@@ -73,10 +91,10 @@ export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
 
       <div className="grid lg:grid-cols-2 gap-0">
         <div className="px-4 md:px-8 py-8 flex flex-col items-center justify-center min-h-[480px] border-b lg:border-b-0 lg:border-r border-white/10 bg-[#081528]">
-          <Pyramid3D selected={selected} onSelect={setSelected} />
+          <Pyramid3D selected={selected} onSelect={setSelected} completedStages={completedStages} />
         </div>
         <div className="px-6 py-8 flex items-center bg-[#0B1B35]">
-          <StageDetail stage={stage} />
+          <StageDetail stage={stage} completed={isDone(stage.id)} />
         </div>
       </div>
     </div>
@@ -97,6 +115,10 @@ export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
  * opacity of the hover layers for rows 1…N so the pyramid lights up
  * cumulatively from the base up to the active stage.
  *
+ * Completed stages are recoloured green by swapping the row's gold fills
+ * (in both layers) for their green equivalents; the original fill is kept in
+ * data-fill so the swap can be undone.
+ *
  * The file is ~560 KB (it embeds the badge PNGs), so it is fetched at runtime
  * rather than bundled, and the container reserves the SVG's aspect ratio so
  * the layout doesn't jump while it loads.
@@ -105,12 +127,21 @@ export function CareerPathPyramid({ initialStage = 1, currentStage }: Props) {
 const SVG_ASPECT = "799 / 701";
 const ROW_ID = /^pyramid-row-(\d+)$/;
 
+/** Gold artwork fills → green "completed" fills (base face, lit face, top edge). */
+const COMPLETED_FILLS: Record<string, string> = {
+  "#FFC507": "#10B981",
+  "#FFDE71": "#6EE7B7",
+  "#A8871B": "#047857",
+};
+
 function Pyramid3D({
   selected,
   onSelect,
+  completedStages,
 }: {
   selected: number;
   onSelect: (id: number) => void;
+  completedStages: number[];
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
@@ -161,7 +192,7 @@ function Pyramid3D({
           row.style.outline = "none";
           row.setAttribute("role", "button");
           row.setAttribute("tabindex", "0");
-          if (stageInfo) row.setAttribute("aria-label", `${stageInfo.label}: ${stageInfo.title}`);
+          if (stageInfo) row.dataset.label = `${stageInfo.label}: ${stageInfo.title}`;
         });
 
         setReady(true);
@@ -184,6 +215,30 @@ function Pyramid3D({
       if (layer) layer.style.opacity = s.id <= active ? "1" : "0";
     }
   }, [active, ready]);
+
+  // Paint completed rows green (both the base row and its lit overlay).
+  const completedKey = completedStages.join(",");
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!ready || !host) return;
+    for (const s of CAREER_STAGES) {
+      const done = completedStages.includes(s.id);
+      for (const id of [`pyramid-row-${s.id}`, `pyramid-row-hover-${s.id}`]) {
+        const row = host.querySelector<SVGGElement>(`#${id}`);
+        if (!row) continue;
+        row.querySelectorAll<SVGElement>("[fill]").forEach((el) => {
+          const original = el.dataset.fill ?? el.getAttribute("fill")!;
+          el.dataset.fill = original;
+          el.setAttribute("fill", done ? COMPLETED_FILLS[original.toUpperCase()] ?? original : original);
+        });
+        if (row.dataset.label) {
+          row.setAttribute("aria-label", done ? `${row.dataset.label} (completed)` : row.dataset.label);
+        }
+      }
+    }
+    // completedKey stands in for completedStages so a new array identity doesn't re-run this.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedKey, ready]);
 
   // Resolve which row an event landed on (overlays are pointer-events: none,
   // so the target is always a base row or nothing).
@@ -237,11 +292,29 @@ function Pyramid3D({
 /* Stage detail                                                        */
 /* ------------------------------------------------------------------ */
 
-function StageDetail({ stage }: { stage: CareerStage }) {
+function StageDetail({ stage, completed }: { stage: CareerStage; completed: boolean }) {
   return (
-    <div className="w-full border border-ngt-yellow/40 rounded-lg bg-[#0a1628] p-5 md:p-6">
-      <div className="text-[11px] uppercase tracking-widest font-bold text-ngt-yellow">
-        {stage.label}
+    <div
+      className={clsx(
+        "w-full border rounded-lg bg-[#0a1628] p-5 md:p-6",
+        completed ? "border-emerald-400/50" : "border-ngt-yellow/40"
+      )}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div
+          className={clsx(
+            "text-[11px] uppercase tracking-widest font-bold",
+            completed ? "text-emerald-400" : "text-ngt-yellow"
+          )}
+        >
+          {stage.label}
+        </div>
+        {completed && (
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-emerald-500/15 text-emerald-400">
+            <Check size={12} strokeWidth={3} />
+            Completed
+          </span>
+        )}
       </div>
       <h3 className="text-xl md:text-2xl font-black mt-1 leading-tight">{stage.title}</h3>
       <p className="text-[14px] text-white/75 mt-3 leading-relaxed">{stage.description}</p>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { CURRENT_STUDENT_ID, findStudent } from "@/lib/mock-data";
-import { inferCareerStage } from "@/lib/student";
+import { inferCareerStage, completedCareerStages } from "@/lib/student";
 import { CareerPathPyramid } from "@/components/career-path-pyramid";
 
 export default function StudentCareer() {
@@ -21,7 +21,11 @@ export default function StudentCareer() {
         </p>
       </div>
 
-      <CareerPathPyramid initialStage={currentStage} currentStage={currentStage} />
+      <CareerPathPyramid
+        initialStage={currentStage}
+        currentStage={currentStage}
+        completedStages={completedCareerStages(s)}
+      />
 
       <div className="bg-white border border-ngt-line rounded-lg shadow-card px-5 py-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-start gap-3">
