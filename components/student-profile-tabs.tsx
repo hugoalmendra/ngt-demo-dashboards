@@ -135,7 +135,7 @@ function ProfileTab({ s }: { s: Student }) {
             />
           </div>
 
-          <Panel title="100-Day Goal" icon={<Target size={14} />}>
+          <Panel title="100-Day FSNA Goal" icon={<Target size={14} />}>
             <div className="py-2">
               <div className="flex items-baseline justify-between mb-2">
                 <div className="text-sm font-semibold">Progress</div>
@@ -143,8 +143,8 @@ function ProfileTab({ s }: { s: Student }) {
               </div>
               <ProgressBar value={s.hundredDayGoalPct} variant="yellow" />
               <p className="text-[12px] text-ngt-muted mt-2 leading-snug">
-                Tracks the student's commitment to complete their planned milestones within
-                100 days of enrollment.
+                Students have 100 days from their term start to complete the FSNA. Tracks
+                progress toward that goal.
               </p>
             </div>
           </Panel>
@@ -448,9 +448,9 @@ function DataTrackingTab({
             icon={<GraduationCap size={14} />}
           />
           <StatCard
-            label="100-Day Goal"
+            label="100-Day FSNA Goal"
             value={`${s.hundredDayGoalPct}%`}
-            sub="Toward target"
+            sub="100 days to complete FSNA"
             accent="yellow"
             icon={<Target size={14} />}
           />

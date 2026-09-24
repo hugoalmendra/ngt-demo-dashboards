@@ -29,3 +29,42 @@ export function completedCareerStages(s: Pick<Student, "certs">): number[] {
   const fsna = s.certs.find((c) => c.code === "FSNA");
   return fsna?.earned ? [1] : [];
 }
+
+export const FSNA_GOAL_DAYS = 100;
+
+export type FsnaGoal =
+  | { state: "earned"; earnedAt?: string; daysTaken?: number }
+  | { state: "in-progress" | "past-due"; pct: number; day?: number; dueDate?: string };
+
+/**
+ * The 100-Day Goal: students have 100 days from their term start to complete
+ * the FSNA. Baseline is the term start (NGT-76), falling back to the primary
+ * enrollment start — never account creation.
+ */
+export function fsnaGoal(
+  s: Pick<Student, "certs" | "hundredDayGoalPct" | "semesterStartDate" | "primaryOrder">,
+  today = new Date()
+): FsnaGoal {
+  const DAY = 86_400_000;
+  const startIso = s.semesterStartDate ?? s.primaryOrder?.startDate;
+  const start = startIso ? new Date(startIso) : undefined;
+  const fsna = s.certs.find((c) => c.code === "FSNA");
+
+  if (fsna?.earned) {
+    const daysTaken =
+      start && fsna.issuedAt
+        ? Math.max(1, Math.round((new Date(fsna.issuedAt).getTime() - start.getTime()) / DAY))
+        : undefined;
+    return { state: "earned", earnedAt: fsna.issuedAt, daysTaken };
+  }
+
+  if (!start) return { state: "in-progress", pct: s.hundredDayGoalPct };
+  const day = Math.max(1, Math.floor((today.getTime() - start.getTime()) / DAY) + 1);
+  const dueDate = new Date(start.getTime() + FSNA_GOAL_DAYS * DAY).toISOString().slice(0, 10);
+  return {
+    state: day > FSNA_GOAL_DAYS ? "past-due" : "in-progress",
+    pct: s.hundredDayGoalPct,
+    day,
+    dueDate,
+  };
+}

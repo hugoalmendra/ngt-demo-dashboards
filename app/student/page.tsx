@@ -8,8 +8,14 @@ import { MilestoneList } from "@/components/milestone-list";
 import { EnrollmentCard } from "@/components/enrollment-card";
 import { ExtendDueDatesButton } from "@/components/extend-due-dates-button";
 import { CareerPathCollapsible } from "@/components/career-path-collapsible";
-import { formatDate } from "@/lib/format";
-import { isIauStudent, inferCareerStage, completedCareerStages } from "@/lib/student";
+import { formatDate, formatShortDate } from "@/lib/format";
+import {
+  isIauStudent,
+  inferCareerStage,
+  completedCareerStages,
+  fsnaGoal,
+  FSNA_GOAL_DAYS,
+} from "@/lib/student";
 
 export default function StudentDashboard() {
   const s = findStudent(CURRENT_STUDENT_ID)!;
@@ -18,6 +24,7 @@ export default function StudentDashboard() {
   const milestonesOverdue = s.milestones.filter((m) => m.status === "Overdue").length;
   const milestonesSentBack = s.milestones.filter((m) => m.status === "Sent Back").length;
   const milestonesActionNeeded = milestonesOverdue + milestonesSentBack;
+  const goal = fsnaGoal(s);
 
   return (
     <div className="space-y-6">
@@ -76,10 +83,27 @@ export default function StudentDashboard() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StudentStat
           icon={<Target size={16} />}
-          label="100-Day Goal"
-          value={`${s.hundredDayGoalPct}%`}
-          help="Your commitment milestone"
-          tone="yellow"
+          label="100-Day FSNA Goal"
+          value={goal.state === "earned" ? "✓ Done" : `${goal.pct}%`}
+          valueClassName={
+            goal.state === "earned"
+              ? "text-emerald-600"
+              : goal.state === "past-due"
+                ? "text-rose-600"
+                : undefined
+          }
+          help={
+            goal.state === "earned"
+              ? goal.daysTaken
+                ? `FSNA completed in ${goal.daysTaken} of ${FSNA_GOAL_DAYS} days`
+                : `FSNA completed ${formatDate(goal.earnedAt)}`
+              : goal.state === "past-due"
+                ? `FSNA was due ${formatShortDate(goal.dueDate)} · talk to your coach`
+                : goal.day
+                  ? `Day ${goal.day} of ${FSNA_GOAL_DAYS} to complete FSNA · due ${formatShortDate(goal.dueDate)}`
+                  : `You have ${FSNA_GOAL_DAYS} days to complete FSNA`
+          }
+          tone={goal.state === "earned" ? "green" : goal.state === "past-due" ? "red" : "yellow"}
         />
         <StudentStat
           icon={<Trophy size={16} />}
@@ -210,11 +234,13 @@ function StudentStat({
   value,
   help,
   tone,
+  valueClassName,
 }: {
   icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
   help: string;
+  valueClassName?: string;
   tone: "yellow" | "green" | "blue" | "red";
 }) {
   const accents: Record<typeof tone, string> = {
@@ -231,7 +257,7 @@ function StudentStat({
           {label}
         </div>
       </div>
-      <div className="mt-2 text-2xl font-bold tabular-nums">{value}</div>
+      <div className={`mt-2 text-2xl font-bold tabular-nums ${valueClassName ?? ""}`}>{value}</div>
       <div className="text-[12px] text-ngt-muted mt-1">{help}</div>
     </div>
   );

@@ -348,7 +348,7 @@ export function StudentRosterTable({
               <Th>Cohort / IAU Term</Th>
               <Th>Status</Th>
               <Th>Program %</Th>
-              <Th>100-Day Goal</Th>
+              <Th>100-Day FSNA Goal</Th>
               <Th>FSNA Delta</Th>
               <Th>Last Active</Th>
               <Th>Milestones</Th>
