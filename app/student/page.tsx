@@ -159,7 +159,7 @@ export default function StudentDashboard() {
             Expand a course to see module-level progress
           </span>
         </div>
-        <ProgramTree program={s.program} friendly />
+        <ProgramTree program={s.program} friendly learnable />
         <p className="text-[11px] text-ngt-muted mt-2 max-w-2xl">
           Each percentage shows progress for that specific level.{" "}
           <span className="font-semibold text-ngt-text">Module</span> = a single unit,{" "}

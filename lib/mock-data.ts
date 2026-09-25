@@ -63,7 +63,7 @@ const PROGRAMS: Record<string, Program> = {
         id: "dfe",
         name: "Digital Forensics Essentials",
         modules: [
-          { id: "dfe-m1", name: "Forensics Foundations", progressPct: 22 },
+          { id: "dfe-m1", name: "Forensics Foundations", progressPct: 0 },
           { id: "dfe-m2", name: "Disk & Memory Analysis", progressPct: 0 },
         ],
       },

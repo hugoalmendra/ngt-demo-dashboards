@@ -11,7 +11,7 @@ export default function StudentPrograms() {
         </div>
         <h1 className="text-2xl font-black">My Programs</h1>
       </div>
-      <ProgramTree program={s.program} friendly />
+      <ProgramTree program={s.program} friendly learnable />
     </div>
   );
 }

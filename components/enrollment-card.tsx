@@ -153,7 +153,11 @@ export function EnrollmentCard({ enrollment, variant, defaultOpen = false }: Pro
               <div className="text-[11px] uppercase tracking-widest text-ngt-muted font-semibold mb-1.5 flex items-center gap-1.5">
                 <BookOpen size={11} /> Curriculum
               </div>
-              <ProgramTree program={treeProgram} friendly={variant === "student"} />
+              <ProgramTree
+                program={treeProgram}
+                friendly={variant === "student"}
+                learnable={variant === "student" && enrollment.status === "Active"}
+              />
             </div>
           )}
 

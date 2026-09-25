@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, BookOpen, GraduationCap, Layers } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight, BookOpen, GraduationCap, Layers, Play, RotateCcw } from "lucide-react";
 import clsx from "clsx";
 import type { Program } from "@/lib/types";
 import { ProgressBar } from "./progress-bar";
@@ -22,9 +23,14 @@ interface Props {
   program: Program;
   /** When true (student view), language is friendlier */
   friendly?: boolean;
+  /**
+   * Show a Start / Continue / Review button on each course. Programs aren't
+   * sequential, so students can open any course, not just the next one.
+   */
+  learnable?: boolean;
 }
 
-export function ProgramTree({ program, friendly }: Props) {
+export function ProgramTree({ program, friendly, learnable }: Props) {
   const overall = computeProgramProgress(program);
   const [openCourses, setOpenCourses] = useState<Record<string, boolean>>(
     Object.fromEntries(program.courses.map((c) => [c.id, true]))
@@ -59,30 +65,37 @@ export function ProgramTree({ program, friendly }: Props) {
           const open = openCourses[course.id];
           return (
             <li key={course.id}>
-              <button
-                onClick={() => setOpenCourses((p) => ({ ...p, [course.id]: !p[course.id] }))}
-                className="w-full px-5 py-3 flex items-center gap-3 hover:bg-ngt-bg/60 transition text-left"
-              >
-                <ChevronRight
-                  size={16}
-                  className={clsx("text-ngt-muted transition-transform", open && "rotate-90")}
-                />
-                <div className="w-8 h-8 rounded bg-amber-50 text-amber-600 grid place-items-center">
-                  <BookOpen size={15} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[10px] uppercase tracking-widest text-ngt-muted mb-0.5">
-                    Course
+              <div className="flex items-center hover:bg-ngt-bg/60 transition">
+                <button
+                  onClick={() =>
+                    setOpenCourses((p) => ({
+                      ...p,
+                      [course.id]: !p[course.id],
+                    }))
+                  }
+                  aria-expanded={open}
+                  className="flex-1 min-w-0 px-5 py-3 flex items-center gap-3 text-left"
+                >
+                  <ChevronRight
+                    size={16}
+                    className={clsx("text-ngt-muted transition-transform", open && "rotate-90")}
+                  />
+                  <div className="w-8 h-8 rounded bg-amber-50 text-amber-600 grid place-items-center">
+                    <BookOpen size={15} />
                   </div>
-                  <div className="font-semibold text-sm truncate">{course.name}</div>
-                </div>
-                <div className="w-[200px] hidden md:block">
-                  <ProgressBar value={pct} variant="auto" size="sm" showLabel />
-                </div>
-                <div className="md:hidden text-sm font-bold tabular-nums text-ngt-text w-12 text-right">
-                  {pct}%
-                </div>
-              </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] uppercase tracking-widest text-ngt-muted mb-0.5">Course</div>
+                    <div className="font-semibold text-sm line-clamp-2">{course.name}</div>
+                  </div>
+                  <div className="w-[200px] hidden md:block">
+                    <ProgressBar value={pct} variant="auto" size="sm" showLabel />
+                  </div>
+                  <div className="md:hidden text-sm font-bold tabular-nums text-ngt-text w-12 text-right">
+                    {pct}%
+                  </div>
+                </button>
+                {learnable && <CourseAction pct={pct} courseName={course.name} />}
+              </div>
 
               {open && (
                 <ul className="bg-ngt-bg/40 border-t border-ngt-line/70">
@@ -95,9 +108,7 @@ export function ProgramTree({ program, friendly }: Props) {
                         <Layers size={12} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[9px] uppercase tracking-widest text-ngt-muted">
-                          Module
-                        </div>
+                        <div className="text-[9px] uppercase tracking-widest text-ngt-muted">Module</div>
                         <div className="text-[13px] truncate">{m.name}</div>
                       </div>
                       <div className="w-[180px] hidden md:block">
@@ -115,5 +126,25 @@ export function ProgramTree({ program, friendly }: Props) {
         })}
       </ul>
     </div>
+  );
+}
+
+function CourseAction({ pct, courseName }: { pct: number; courseName: string }) {
+  const done = pct >= 100;
+  const label = pct === 0 ? "Start learning" : done ? "Review" : "Continue";
+  return (
+    <Link
+      href="/learn"
+      aria-label={`${label}: ${courseName}`}
+      className={clsx(
+        "shrink-0 mr-5 inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-[11px] font-bold uppercase tracking-widest transition whitespace-nowrap",
+        done
+          ? "border border-ngt-line text-ngt-muted hover:border-ngt-yellow hover:text-ngt-text"
+          : "bg-ngt-yellow hover:bg-ngt-yellowDark text-black"
+      )}
+    >
+      {done ? <RotateCcw size={12} /> : <Play size={12} fill="currentColor" />}
+      <span className="hidden sm:inline">{label}</span>
+    </Link>
   );
 }
