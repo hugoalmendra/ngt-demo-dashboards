@@ -65,7 +65,7 @@ export function ProgramTree({ program, friendly, learnable }: Props) {
           const open = openCourses[course.id];
           return (
             <li key={course.id}>
-              <div className="flex items-center hover:bg-ngt-bg/60 transition">
+              <div className="relative group flex items-center hover:bg-ngt-bg/60 transition">
                 <button
                   onClick={() =>
                     setOpenCourses((p) => ({
@@ -87,7 +87,13 @@ export function ProgramTree({ program, friendly, learnable }: Props) {
                     <div className="text-[10px] uppercase tracking-widest text-ngt-muted mb-0.5">Course</div>
                     <div className="font-semibold text-sm line-clamp-2">{course.name}</div>
                   </div>
-                  <div className="w-[200px] hidden md:block">
+                  <div
+                    className={clsx(
+                      "w-[200px] hidden md:block transition-opacity",
+                      // Make room for the hover-revealed course button.
+                      learnable && "group-hover:opacity-0 [@media(hover:none)]:opacity-100"
+                    )}
+                  >
                     <ProgressBar value={pct} variant="auto" size="sm" showLabel />
                   </div>
                   <div className="md:hidden text-sm font-bold tabular-nums text-ngt-text w-12 text-right">
@@ -137,9 +143,16 @@ function CourseAction({ pct, courseName }: { pct: number; courseName: string }) 
       href="/learn"
       aria-label={`${label}: ${courseName}`}
       className={clsx(
-        "shrink-0 mr-5 inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-[11px] font-bold uppercase tracking-widest transition whitespace-nowrap",
+        "inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-[11px] font-bold uppercase tracking-widest transition whitespace-nowrap shadow-card",
+        // Overlaid on the progress bar and revealed on row hover / keyboard focus,
+        // so it takes no space and the progress bars stay aligned.
+        "absolute right-5 top-1/2 -translate-y-1/2 opacity-0 pointer-events-none",
+        "group-hover:opacity-100 group-hover:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto",
+        // Touch screens have no hover: keep it visible, in the row.
+        "[@media(hover:none)]:static [@media(hover:none)]:translate-y-0 [@media(hover:none)]:mr-5 [@media(hover:none)]:shrink-0",
+        "[@media(hover:none)]:opacity-100 [@media(hover:none)]:pointer-events-auto",
         done
-          ? "border border-ngt-line text-ngt-muted hover:border-ngt-yellow hover:text-ngt-text"
+          ? "bg-white border border-ngt-line text-ngt-muted hover:border-ngt-yellow hover:text-ngt-text"
           : "bg-ngt-yellow hover:bg-ngt-yellowDark text-black"
       )}
     >
