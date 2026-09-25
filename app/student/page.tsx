@@ -1,4 +1,5 @@
 import { Award, BookOpen, CalendarDays, Flag, GraduationCap, Target, Trophy } from "lucide-react";
+import Link from "next/link";
 import { CURRENT_STUDENT_ID, findStudent } from "@/lib/mock-data";
 import { ProgramTree } from "@/components/program-tree";
 import { ProgressBar } from "@/components/progress-bar";
@@ -49,9 +50,12 @@ export default function StudentDashboard() {
               <StatusPill status={s.progressStatus} />
             </div>
           </div>
-          <button className="hidden md:flex bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold tracking-widest px-4 h-10 rounded-md items-center gap-2">
+          <Link
+            href="/learn"
+            className="hidden md:flex bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold tracking-widest px-4 h-10 rounded-md items-center gap-2"
+          >
             <BookOpen size={14} /> RESUME LEARNING
-          </button>
+          </Link>
         </div>
 
         {/* HEADLINE PROGRESS — make it crystal clear what this % is */}
