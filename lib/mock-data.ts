@@ -6,6 +6,7 @@ import type {
   ProgressStatus,
   Milestone,
   ProgramEnrollment,
+  Ssm,
 } from "./types";
 
 // =====================================================================
@@ -324,9 +325,19 @@ function deriveStatus(deltaDays: number, programPct: number): ProgressStatus {
   return "At Risk";
 }
 
+// Placeholder SSMs for the demo (not real staff).
+export const SSMS: Ssm[] = [
+  { id: "ssm-jordan", name: "Jordan Reyes", email: "jordan.reyes@ngt-demo.com", avatarColor: "bg-sky-600" },
+  { id: "ssm-taylor", name: "Taylor Brooks", email: "taylor.brooks@ngt-demo.com", avatarColor: "bg-violet-600" },
+  { id: "ssm-morgan", name: "Morgan Ellis", email: "morgan.ellis@ngt-demo.com", avatarColor: "bg-emerald-600" },
+];
+
+export const findSsm = (id?: string) => SSMS.find((m) => m.id === id);
+
 export const STUDENTS: Student[] = [
   {
     id: "kevin-stewart",
+    assignedSsmId: "ssm-jordan",
     fullName: "Kevin A. Stewart",
     email: "pause320@gmail.com",
     avatarColor: pickAvatar(0),
@@ -413,6 +424,7 @@ export const STUDENTS: Student[] = [
   },
   {
     id: "marcus-cylar",
+    assignedSsmId: "ssm-taylor",
     fullName: "Marcus A. Cylar, DMin",
     email: "mcylar@example.com",
     avatarColor: pickAvatar(1),
@@ -455,6 +467,7 @@ export const STUDENTS: Student[] = [
   },
   {
     id: "luis-ramos",
+    assignedSsmId: "ssm-morgan",
     fullName: "Luis A Ramos Jr",
     email: "lramos@example.com",
     avatarColor: pickAvatar(2),
@@ -566,6 +579,7 @@ export const STUDENTS: Student[] = [
   },
   {
     id: "a-sanders",
+    assignedSsmId: "ssm-jordan",
     fullName: "A. Sanders",
     email: "asanders@example.com",
     avatarColor: pickAvatar(3),
@@ -613,6 +627,7 @@ export const STUDENTS: Student[] = [
   },
   {
     id: "georgey-thankachan",
+    assignedSsmId: "ssm-taylor",
     fullName: "A. Georgey Thankachan",
     email: "georgey@example.com",
     avatarColor: pickAvatar(4),
@@ -658,6 +673,7 @@ export const STUDENTS: Student[] = [
   },
   {
     id: "nestor-roque",
+    assignedSsmId: "ssm-morgan",
     fullName: "Nestor A. Gonzalez Roque",
     email: "ngonzalez@example.com",
     avatarColor: pickAvatar(5),
@@ -711,6 +727,7 @@ export const STUDENTS: Student[] = [
   },
   {
     id: "steven-thomas",
+    assignedSsmId: "ssm-jordan",
     fullName: "Steven A Thomas",
     email: "sthomas@example.com",
     avatarColor: pickAvatar(6),

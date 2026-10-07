@@ -29,6 +29,7 @@ import { EnrollmentCard } from "@/components/enrollment-card";
 import { ViewOrderButton } from "@/components/view-order-button";
 import { ExtendDueDatesButton } from "@/components/extend-due-dates-button";
 import { IauProgramDetailsPanel } from "@/components/iau-program-details-panel";
+import { AssignedSsmSection } from "@/components/assigned-ssm";
 import { formatDate, formatDelta } from "@/lib/format";
 
 const ENROLLMENT_STATUS_STYLES: Record<string, string> = {
@@ -205,6 +206,8 @@ function StudentIdentityCard({ s }: { s: Student }) {
           <span>{s.programOfStudy}</span>
         </div>
       </div>
+
+      <AssignedSsmSection initialSsmId={s.assignedSsmId} />
 
       <div className="px-5 py-4 border-t border-ngt-line space-y-2">
         {s.crmLink && (

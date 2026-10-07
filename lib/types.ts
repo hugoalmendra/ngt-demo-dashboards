@@ -73,6 +73,14 @@ export interface Milestone {
   programId?: string;      // which program this milestone belongs to
 }
 
+// Student Success Manager — internal staff member who owns a student.
+export interface Ssm {
+  id: string;
+  name: string;
+  email: string;
+  avatarColor: string;     // tailwind class for the avatar circle bg
+}
+
 export interface Student {
   id: string;
   fullName: string;
@@ -85,6 +93,7 @@ export interface Student {
   tshirtSize?: string;             // "S" | "M" | "L" | "XL" | "N/A"
   signUpMethod?: string;           // "Email" | "Google" | "Facebook" | "SSO" etc.
   crmLink?: string;                // HubSpot / CRM contact URL for SSM quick access
+  assignedSsmId?: string;          // Ssm.id of the student's SSM; undefined = unassigned
 
   // ---- HubSpot / IAU fields requested by Paul/Andrew ----
   programOfStudy: string;          // "Cybersecurity Accelerator"

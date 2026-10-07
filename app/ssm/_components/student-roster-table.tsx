@@ -21,6 +21,8 @@ import { StatusPill } from "@/components/status-pill";
 import { MilestoneStatusCounts } from "@/components/milestone-status-badge";
 import { AddUserModal, type NewUser } from "@/components/add-user-modal";
 import { formatShortDate } from "@/lib/format";
+import { SSMS, findSsm } from "@/lib/mock-data";
+import { SsmAvatar } from "@/components/assigned-ssm";
 
 const AVATAR_PALETTE = [
   "bg-rose-500",
@@ -83,6 +85,7 @@ interface Props {
 }
 
 const ALL = "All";
+const UNASSIGNED = "Unassigned";
 
 export function StudentRosterTable({
   students,
@@ -99,6 +102,7 @@ export function StudentRosterTable({
   const [status, setStatus] = useState<string>(ALL);
   const [enrollment, setEnrollment] = useState<string>(ALL);
   const [activity, setActivity] = useState<string>(ALL);
+  const [ssm, setSsm] = useState<string>(ALL);
   const [moreOpen, setMoreOpen] = useState(false);
   // Tracks which copy button was last pressed and whether it succeeded,
   // for ~2s of inline feedback. Per-button so an error never colors the
@@ -128,6 +132,7 @@ export function StudentRosterTable({
     (status !== ALL ? 1 : 0) +
     (enrollment !== ALL ? 1 : 0) +
     (activity !== ALL ? 1 : 0) +
+    (ssm !== ALL ? 1 : 0) +
     (q.trim() !== "" ? 1 : 0);
 
   // Secondary filters live in the "More filters" row.
@@ -146,6 +151,7 @@ export function StudentRosterTable({
     setStatus(ALL);
     setEnrollment(ALL);
     setActivity(ALL);
+    setSsm(ALL);
     setMoreOpen(false);
   };
 
@@ -166,7 +172,11 @@ export function StudentRosterTable({
         (activity === "Active last 7d" && s.daysSinceActive <= 7) ||
         (activity === "Inactive 7–14d" && s.daysSinceActive > 7 && s.daysSinceActive <= 14) ||
         (activity === "Inactive 14d+" && s.daysSinceActive > 14);
+      const matchesSsm =
+        ssm === ALL ||
+        (ssm === UNASSIGNED ? !findSsm(s.assignedSsmId) : findSsm(s.assignedSsmId)?.name === ssm);
       return (
+        matchesSsm &&
         matchesQ &&
         matchesCohort &&
         matchesProgram &&
@@ -175,7 +185,7 @@ export function StudentRosterTable({
         matchesActivity
       );
     });
-  }, [roster, q, cohort, program, status, enrollment, activity]);
+  }, [roster, q, cohort, program, status, enrollment, activity, ssm]);
 
   const handleCreate = (user: NewUser) => {
     setRoster((cur) => [studentFromNewUser(user, cur.length), ...cur]);
@@ -251,6 +261,12 @@ export function StudentRosterTable({
 
           <FilterSelect label="Status" value={status} onChange={setStatus} options={statuses} />
           <FilterSelect label="Cohort" value={cohort} onChange={setCohort} options={cohorts} />
+          <FilterSelect
+            label="SSM"
+            value={ssm}
+            onChange={setSsm}
+            options={[ALL, ...SSMS.map((m) => m.name), UNASSIGNED]}
+          />
 
           <button
             type="button"
@@ -344,6 +360,7 @@ export function StudentRosterTable({
           <thead>
             <tr className="bg-ngt-bg/60 text-[10px] uppercase tracking-widest text-ngt-muted">
               <Th>Student</Th>
+              <Th>SSM</Th>
               <Th>Program of Study</Th>
               <Th>Cohort / IAU Term</Th>
               <Th>Status</Th>
@@ -386,6 +403,9 @@ export function StudentRosterTable({
                         <div className="text-[11px] text-ngt-muted truncate">{s.email}</div>
                       </div>
                     </div>
+                  </Td>
+                  <Td>
+                    <SsmCell ssmId={s.assignedSsmId} />
                   </Td>
                   <Td>
                     <div className="text-[13px] font-medium flex items-center gap-2">
@@ -613,4 +633,15 @@ function Td({ children, className }: { children: React.ReactNode; className?: st
 
 function shortCode(code: string) {
   return code === "NetworkPlus" ? "NET+" : code === "SecurityPlus" ? "SEC+" : code;
+}
+
+function SsmCell({ ssmId }: { ssmId?: string }) {
+  const m = findSsm(ssmId);
+  if (!m) return <span className="text-[12px] font-semibold text-amber-700">Unassigned</span>;
+  return (
+    <div className="flex items-center gap-2 min-w-[130px]" title={m.email}>
+      <SsmAvatar ssm={m} size="sm" />
+      <span className="text-[13px] truncate">{m.name}</span>
+    </div>
+  );
 }

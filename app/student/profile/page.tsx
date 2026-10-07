@@ -1,6 +1,7 @@
 import { CURRENT_STUDENT_ID, findStudent } from "@/lib/mock-data";
 import { DataRow } from "@/components/data-row";
 import { formatDate } from "@/lib/format";
+import { StudentSsmCard } from "@/components/assigned-ssm";
 
 export default function StudentProfile() {
   const s = findStudent(CURRENT_STUDENT_ID)!;
@@ -22,6 +23,7 @@ export default function StudentProfile() {
         <DataRow label="IAU School Term" value={s.iauSchoolTerm} />
         <DataRow label="Account Created" value={formatDate(s.accountCreatedDate)} />
       </div>
+      <StudentSsmCard ssmId={s.assignedSsmId} />
     </div>
   );
 }
