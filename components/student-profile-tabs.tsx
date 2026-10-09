@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   Activity,
@@ -30,6 +30,8 @@ import { ViewOrderButton } from "@/components/view-order-button";
 import { ExtendDueDatesButton } from "@/components/extend-due-dates-button";
 import { IauProgramDetailsPanel } from "@/components/iau-program-details-panel";
 import { AssignedSsmSection } from "@/components/assigned-ssm";
+import { StudentNotesTab } from "@/components/notes/student-notes-tab";
+import { useNotes } from "@/components/notes/notes-store";
 import { formatDate, formatDelta } from "@/lib/format";
 
 const ENROLLMENT_STATUS_STYLES: Record<string, string> = {
@@ -54,17 +56,24 @@ const MILESTONE_DOT_STYLES: Record<string, string> = {
   Incomplete: "bg-ngt-bg text-ngt-muted ring-1 ring-ngt-line",
 };
 
-type TabKey = "profile" | "data" | "log" | "referral";
+type TabKey = "profile" | "data" | "notes" | "log" | "referral";
 
 const TABS: { key: TabKey; label: string; disabled?: boolean }[] = [
   { key: "profile", label: "Profile" },
   { key: "data", label: "Data Tracking" },
+  { key: "notes", label: "Notes" },
   { key: "log", label: "Log", disabled: true },
   { key: "referral", label: "Refer a Friend", disabled: true },
 ];
 
 export function StudentProfileTabs({ student: s }: { student: Student }) {
   const [tab, setTab] = useState<TabKey>("profile");
+  const noteCount = useNotes().notes.filter((n) => n.studentId === s.id).length;
+
+  // Deep link from My Notes: /ssm/students/{id}/#notes opens the Notes tab.
+  useEffect(() => {
+    if (window.location.hash === "#notes") setTab("notes");
+  }, []);
 
   const readyForReview = s.milestones.filter((m) => m.status === "Ready for Review").length;
   const overdue = s.milestones.filter((m) => m.status === "Overdue").length;
@@ -92,6 +101,11 @@ export function StudentProfileTabs({ student: s }: { student: Student }) {
                 )}
               >
                 {t.label}
+                {t.key === "notes" && noteCount > 0 && (
+                  <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold bg-ngt-yellow/20 text-ngt-yellowDark align-middle">
+                    {noteCount}
+                  </span>
+                )}
                 {active && !t.disabled && (
                   <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-ngt-yellow rounded-full" />
                 )}
@@ -102,6 +116,7 @@ export function StudentProfileTabs({ student: s }: { student: Student }) {
       </div>
 
       {tab === "profile" && <ProfileTab s={s} />}
+      {tab === "notes" && <StudentNotesTab studentId={s.id} studentName={s.fullName.split(" ")[0]} />}
       {tab === "data" && (
         <DataTrackingTab
           s={s}

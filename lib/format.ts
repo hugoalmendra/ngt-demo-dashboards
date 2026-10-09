@@ -17,3 +17,10 @@ export const formatDelta = (days: number) => {
   if (days > 0) return `${days}d ahead`;
   return `${Math.abs(days)}d behind`;
 };
+
+export const formatDateTime = (iso?: string) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  return `${formatDate(iso)} · ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`;
+};

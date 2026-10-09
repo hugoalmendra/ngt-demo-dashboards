@@ -81,6 +81,20 @@ export interface Ssm {
   avatarColor: string;     // tailwind class for the avatar circle bg
 }
 
+// Internal note an SSM writes on a student (never shown to the student).
+export type NoteCategory = "General" | "Call" | "Email" | "Academic" | "Follow-up";
+
+export interface StudentNote {
+  id: string;
+  studentId: string;
+  authorSsmId: string;     // Ssm.id of the note's author
+  category: NoteCategory;
+  body: string;
+  pinned: boolean;
+  createdAt: string;       // ISO date-time
+  updatedAt?: string;      // ISO date-time, set when edited
+}
+
 export interface Student {
   id: string;
   fullName: string;

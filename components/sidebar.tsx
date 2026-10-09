@@ -14,6 +14,7 @@ import {
   Building2,
   UserCircle2,
   BarChart3,
+  NotebookPen,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -22,6 +23,7 @@ type NavItem = { href: string; label: string; icon: React.ReactNode };
 const SSM_NAV: NavItem[] = [
   { href: "/ssm", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
   { href: "/ssm/students", label: "Students", icon: <Users size={18} /> },
+  { href: "/ssm/notes", label: "My Notes", icon: <NotebookPen size={18} /> },
   { href: "/ssm/cohorts", label: "Cohorts", icon: <Building2 size={18} /> },
   { href: "/ssm/programs", label: "Programs", icon: <GraduationCap size={18} /> },
   { href: "/ssm/reports", label: "Reports", icon: <BarChart3 size={18} /> },
