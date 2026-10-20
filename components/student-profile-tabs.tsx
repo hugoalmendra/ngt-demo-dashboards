@@ -222,7 +222,7 @@ function StudentIdentityCard({ s }: { s: Student }) {
         </div>
       </div>
 
-      <AssignedSsmSection initialSsmId={s.assignedSsmId} />
+      <AssignedSsmSection ssmId={s.assignedSsmId} />
 
       <div className="px-5 py-4 border-t border-ngt-line space-y-2">
         {s.crmLink && (

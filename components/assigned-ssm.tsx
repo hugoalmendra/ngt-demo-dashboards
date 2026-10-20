@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { Check, ChevronDown, Mail, UserRound } from "lucide-react";
-import { SSMS, findSsm } from "@/lib/mock-data";
+import { Mail, UserRound } from "lucide-react";
+import { findSsm } from "@/lib/mock-data";
 import type { Ssm } from "@/lib/types";
 
 const initials = (name: string) =>
@@ -27,24 +26,12 @@ export function SsmAvatar({ ssm, size = "md" }: { ssm: Ssm; size?: "sm" | "md" }
   );
 }
 
-/** Assigned SSM block for the SSM-facing student profile, with reassignment. */
-export function AssignedSsmSection({ initialSsmId }: { initialSsmId?: string }) {
-  const [ssmId, setSsmId] = useState(initialSsmId ?? "");
-  // Picking a name applies immediately (no Save); keep the previous value
-  // around briefly so a mis-click can be undone.
-  const [undo, setUndo] = useState<{ previous: string } | null>(null);
+/**
+ * Assigned SSM block for the SSM-facing student profile. Read-only: the SSM is
+ * the HubSpot Contact owner and is changed in HubSpot, not in the LMS.
+ */
+export function AssignedSsmSection({ ssmId }: { ssmId?: string }) {
   const ssm = findSsm(ssmId);
-
-  useEffect(() => {
-    if (!undo) return;
-    const t = setTimeout(() => setUndo(null), 6000);
-    return () => clearTimeout(t);
-  }, [undo]);
-
-  const change = (next: string) => {
-    setUndo({ previous: ssmId });
-    setSsmId(next);
-  };
 
   return (
     <div className="px-5 py-4 border-t border-ngt-line">
@@ -69,45 +56,7 @@ export function AssignedSsmSection({ initialSsmId }: { initialSsmId?: string }) 
           <UserRound size={16} /> Unassigned
         </div>
       )}
-      <label className="mt-3 flex items-center gap-2 text-[11px] text-ngt-muted">
-        {ssm ? "Reassign" : "Assign"}
-        <span className="relative flex-1 min-w-0">
-          <select
-            value={ssmId}
-            onChange={(e) => change(e.target.value)}
-            className="w-full h-8 pl-2.5 pr-8 appearance-none rounded-md border border-ngt-line bg-white text-[13px] text-ngt-text truncate focus:outline-none focus:ring-2 focus:ring-ngt-yellow/40"
-          >
-            <option value="">Unassigned</option>
-            {SSMS.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={14}
-            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ngt-muted"
-          />
-        </span>
-      </label>
-      {undo && (
-        <div role="status" className="mt-2 flex items-center justify-between gap-2 text-[12px]">
-          <span className="inline-flex items-center gap-1 text-emerald-700">
-            <Check size={13} strokeWidth={3} />
-            {ssm ? `Reassigned to ${ssm.name}` : "SSM removed"}
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setSsmId(undo.previous);
-              setUndo(null);
-            }}
-            className="font-semibold text-ngt-yellowDark hover:underline"
-          >
-            Undo
-          </button>
-        </div>
-      )}
+      <p className="mt-2 text-[11px] text-ngt-muted">Managed in HubSpot (Contact owner)</p>
     </div>
   );
 }
