@@ -41,13 +41,16 @@ export function AwardsLog() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [query, setQuery] = useState("");
+  const [iauOnly, setIauOnly] = useState(false);
   const [shown, setShown] = useState(PAGE_SIZE);
 
-  // Deep links: #completion-course, #completion-program, #recognition, #awards
+  // Deep links: #completion-course, #completion-program, #recognition, #awards — plus "&iau" for IAU only
   const [hashRead, setHashRead] = useState(false);
   useEffect(() => {
     const apply = () => {
-      const [t, l] = window.location.hash.slice(1).split("-");
+      const [view, flag] = window.location.hash.slice(1).split("&");
+      const [t, l] = view.split("-");
+      setIauOnly(flag === "iau");
       if (t === "awards" || t === "completion" || t === "recognition") setTab(t);
       if (l === "course" || l === "program") setLevel(l);
     };
@@ -61,11 +64,12 @@ export function AwardsLog() {
   // incoming hash has been read, or the default tab would overwrite it.
   useEffect(() => {
     if (!hashRead) return;
-    const hash = tab === "completion" ? `#completion-${level}` : `#${tab}`;
+    const hash = (tab === "completion" ? `#completion-${level}` : `#${tab}`) + (iauOnly ? "&iau" : "");
     if (window.location.hash !== hash) window.history.replaceState(null, "", hash);
-  }, [tab, level, hashRead]);
+  }, [tab, level, iauOnly, hashRead]);
 
-  // Changing view resets filters that don't apply to it.
+  // Changing view resets filters that don't apply to it. "IAU students only"
+  // applies to every tab, so it stays on; the Clear button turns it off too.
   const resetFilters = () => {
     setAward(ALL);
     setIssuer(ALL);
@@ -76,8 +80,11 @@ export function AwardsLog() {
   };
 
   const inView = useMemo(
-    () => AWARD_RECORDS.filter((r) => r.tab === tab && (tab !== "completion" || r.level === level)),
-    [tab, level]
+    () =>
+      AWARD_RECORDS.filter(
+        (r) => r.tab === tab && (tab !== "completion" || r.level === level) && (!iauOnly || r.iau)
+      ),
+    [tab, level, iauOnly]
   );
 
   const awardOptions = useMemo(() => [ALL, ...Array.from(new Set(inView.map((r) => r.award))).sort()], [inView]);
@@ -97,20 +104,21 @@ export function AwardsLog() {
 
   const counts = useMemo(
     () => ({
-      program: AWARD_RECORDS.filter((r) => r.tab === "completion" && r.level === "program").length,
-      course: AWARD_RECORDS.filter((r) => r.tab === "completion" && r.level === "course").length,
+      program: AWARD_RECORDS.filter((r) => r.tab === "completion" && r.level === "program" && (!iauOnly || r.iau)).length,
+      course: AWARD_RECORDS.filter((r) => r.tab === "completion" && r.level === "course" && (!iauOnly || r.iau)).length,
     }),
-    []
+    [iauOnly]
   );
 
   const filtering = award !== ALL || issuer !== ALL || !!from || !!to || !!query.trim();
+  const canClear = filtering || iauOnly;
   const label = awardLabel(tab, level);
   const isCourse = tab === "completion" && level === "course";
 
   const exportCsv = () => {
-    const header = ["Issue Date", "Student Name", label, ...(isCourse ? ["Program"] : []), "Reference", "Status", "Issuer"];
+    const header = ["Issue Date", "Student Name", "IAU", label, ...(isCourse ? ["Program"] : []), "Reference", "Status", "Issuer"];
     const lines = rows.map((r) =>
-      [formatIssueDate(r.issueDate), r.studentName, r.award, ...(isCourse ? [r.program ?? ""] : []), r.reference, r.status, r.issuer]
+      [formatIssueDate(r.issueDate), r.studentName, r.iau ? "Yes" : "No", r.award, ...(isCourse ? [r.program ?? ""] : []), r.reference, r.status, r.issuer]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(",")
     );
@@ -120,7 +128,7 @@ export function AwardsLog() {
     const a = document.createElement("a");
     const slug = tab === "completion" ? `${level}-certificates` : tab;
     a.href = url;
-    a.download = `awards-log-${slug}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `awards-log-${slug}${iauOnly ? "-iau" : ""}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -224,10 +232,25 @@ export function AwardsLog() {
             />
           </div>
         </Field>
+        <label className="h-10 px-3 inline-flex items-center gap-2 rounded-md border border-ngt-line bg-white text-sm cursor-pointer select-none has-[:checked]:border-violet-300 has-[:checked]:bg-violet-50">
+          <input
+            type="checkbox"
+            checked={iauOnly}
+            onChange={(e) => {
+              setIauOnly(e.target.checked);
+              setShown(PAGE_SIZE);
+            }}
+            className="w-4 h-4 accent-violet-600"
+          />
+          IAU students only
+        </label>
         <button
           type="button"
-          onClick={resetFilters}
-          disabled={!filtering}
+          onClick={() => {
+            resetFilters();
+            setIauOnly(false);
+          }}
+          disabled={!canClear}
           className="h-10 px-4 rounded-md border border-ngt-line bg-white text-[11px] font-bold uppercase tracking-widest text-ngt-text disabled:text-ngt-muted/50"
         >
           Clear
@@ -289,6 +312,7 @@ export function AwardsLog() {
       <div className="flex flex-col items-center gap-2">
         <div className="text-[12px] text-ngt-muted">
           Showing {Math.min(shown, rows.length)} of {rows.length}
+          {iauOnly && " IAU students"}
           {filtering && ` (filtered from ${inView.length})`}
         </div>
         {shown < rows.length && (
@@ -309,7 +333,16 @@ function Row({ r, isCourse }: { r: AwardRecord; isCourse: boolean }) {
   return (
     <tr className="hover:bg-ngt-bg/40">
       <Td className="whitespace-nowrap tabular-nums">{formatIssueDate(r.issueDate)}</Td>
-      <Td>{r.studentName}</Td>
+      <Td>
+        <span className="inline-flex items-center gap-2 flex-wrap">
+          {r.studentName}
+          {r.iau && (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-violet-50 text-violet-700 ring-1 ring-violet-200">
+              IAU
+            </span>
+          )}
+        </span>
+      </Td>
       <Td>{r.award}</Td>
       {isCourse && <Td className="text-ngt-muted">{r.program}</Td>}
       <Td className="whitespace-nowrap tabular-nums">{r.reference}</Td>
