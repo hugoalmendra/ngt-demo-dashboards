@@ -30,7 +30,7 @@ const SSM_NAV: NavItem[] = [
   { href: "/ssm/admin", label: "Admin", icon: <Settings size={18} /> },
 ];
 
-const STUDENT_NAV: NavItem[] = [
+export const STUDENT_NAV: NavItem[] = [
   { href: "/student", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
   { href: "/student/programs", label: "Programs", icon: <GraduationCap size={18} /> },
   { href: "/student/courses", label: "Courses", icon: <Library size={18} /> },
@@ -45,7 +45,13 @@ export function Sidebar({ variant }: { variant: "ssm" | "student" }) {
   const nav = variant === "ssm" ? SSM_NAV : STUDENT_NAV;
 
   return (
-    <aside className="w-[220px] shrink-0 bg-ngt-ink text-white flex flex-col min-h-screen sticky top-0">
+    <aside
+      className={clsx(
+        "w-[220px] shrink-0 bg-ngt-ink text-white flex-col min-h-screen sticky top-0",
+        // Students get a production-style mobile header instead (StudentMobileNav).
+        variant === "student" ? "hidden md:flex" : "flex"
+      )}
+    >
       <div className="px-5 py-5 flex items-center gap-2 border-b border-white/5">
         <Link href="/" className="flex items-center gap-2">
           <img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/ngt-icon.png`} alt="NGT.Academy" className="w-9 h-9 object-contain" />

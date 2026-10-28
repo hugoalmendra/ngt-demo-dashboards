@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { Bell, Search, Trophy } from "lucide-react";
 import { SsmContactButton } from "@/components/assigned-ssm";
 
@@ -9,11 +10,17 @@ interface TopbarProps {
   rightSearch?: boolean;
   /** Student pages: show the "Your SSM" contact button. */
   studentSsmId?: string | null;
+  className?: string;
 }
 
-export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch, studentSsmId }: TopbarProps) {
+export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch, studentSsmId, className }: TopbarProps) {
   return (
-    <header className="h-[64px] bg-white border-b border-ngt-line flex items-center justify-between px-6 sticky top-0 z-30">
+    <header
+      className={clsx(
+        "h-[64px] bg-white border-b border-ngt-line flex items-center justify-between px-6 sticky top-0 z-30",
+        className
+      )}
+    >
       {rightSearch ? (
         <div className="flex items-center gap-2 w-[420px] max-w-[40vw]">
           <div className="relative w-full">

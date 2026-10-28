@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { Check, ChevronDown, Copy, LifeBuoy, Mail, UserRound } from "lucide-react";
 import { findSsm } from "@/lib/mock-data";
@@ -94,29 +94,10 @@ export function StudentSsmCard({ ssmId }: { ssmId?: string }) {
   );
 }
 
-/**
- * Top bar button for students: "Your SSM" pill that opens a small contact card,
- * so support is one click away from every student page.
- */
-export function SsmContactButton({ ssmId }: { ssmId?: string }) {
+/** Contact details + Email / Copy actions, shared by the desktop popover and the mobile sheet. */
+export function SsmContactBody({ ssmId, large }: { ssmId?: string; large?: boolean }) {
   const ssm = findSsm(ssmId);
-  const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
 
   const copy = async () => {
     if (!ssm) return;
@@ -128,6 +109,82 @@ export function SsmContactButton({ ssmId }: { ssmId?: string }) {
       /* clipboard blocked: the email is still visible to copy by hand */
     }
   };
+
+  if (!ssm) {
+    return (
+      <p className="text-[13px] text-ngt-muted leading-relaxed">
+        You&apos;ll be assigned a Student Success Manager soon. In the meantime, reach out to
+        Academic Support.
+      </p>
+    );
+  }
+
+  const btn = large ? "h-12 text-[12px]" : "h-9 text-[11px]";
+  return (
+    <>
+      <div className="flex items-center gap-3">
+        <SsmAvatar ssm={ssm} />
+        <div className="min-w-0">
+          <div className="font-bold text-sm">{ssm.name}</div>
+          <div className="text-[12px] text-ngt-muted truncate">{ssm.email}</div>
+        </div>
+      </div>
+      <p className="mt-3 text-[12px] text-ngt-muted leading-relaxed">
+        Questions about your program, schedule, milestones or certifications? Reach out anytime.
+      </p>
+      <div className="mt-3 flex gap-2">
+        <a
+          href={`mailto:${ssm.email}`}
+          className={clsx(
+            "flex-1 inline-flex items-center justify-center gap-1.5 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-black font-bold uppercase tracking-widest",
+            btn
+          )}
+        >
+          <Mail size={13} /> Email
+        </a>
+        <button
+          type="button"
+          onClick={copy}
+          className={clsx(
+            "inline-flex items-center justify-center gap-1.5 px-3 rounded-md border border-ngt-line hover:bg-ngt-bg font-bold uppercase tracking-widest text-ngt-muted",
+            btn
+          )}
+        >
+          {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+    </>
+  );
+}
+
+/** Closes on click outside `ref` or on Esc while `open`. */
+export function useDismiss(open: boolean, close: () => void, ref?: React.RefObject<HTMLElement>) {
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref && !ref.current?.contains(e.target as Node)) close();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open, close, ref]);
+}
+
+/**
+ * Top bar button for students: "Your SSM" pill that opens a small contact card,
+ * so support is one click away from every student page.
+ */
+export function SsmContactButton({ ssmId }: { ssmId?: string }) {
+  const ssm = findSsm(ssmId);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+  useDismiss(open, close, ref);
 
   return (
     <div ref={ref} className="relative">
@@ -168,41 +225,7 @@ export function SsmContactButton({ ssmId }: { ssmId?: string }) {
           <div className="text-[10px] uppercase tracking-widest text-ngt-muted font-semibold mb-3">
             Your Student Success Manager
           </div>
-          {ssm ? (
-            <>
-              <div className="flex items-center gap-3">
-                <SsmAvatar ssm={ssm} />
-                <div className="min-w-0">
-                  <div className="font-bold text-sm">{ssm.name}</div>
-                  <div className="text-[12px] text-ngt-muted truncate">{ssm.email}</div>
-                </div>
-              </div>
-              <p className="mt-3 text-[12px] text-ngt-muted leading-relaxed">
-                Questions about your program, schedule, milestones or certifications? Reach out anytime.
-              </p>
-              <div className="mt-3 flex gap-2">
-                <a
-                  href={`mailto:${ssm.email}`}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold uppercase tracking-widest"
-                >
-                  <Mail size={13} /> Email
-                </a>
-                <button
-                  type="button"
-                  onClick={copy}
-                  className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md border border-ngt-line hover:bg-ngt-bg text-[11px] font-bold uppercase tracking-widest text-ngt-muted"
-                >
-                  {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                  {copied ? "Copied" : "Copy"}
-                </button>
-              </div>
-            </>
-          ) : (
-            <p className="text-[13px] text-ngt-muted leading-relaxed">
-              You&apos;ll be assigned a Student Success Manager soon. In the meantime, reach out to
-              Academic Support.
-            </p>
-          )}
+          <SsmContactBody ssmId={ssmId} />
         </div>
       )}
     </div>
