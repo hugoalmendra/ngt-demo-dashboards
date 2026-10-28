@@ -1,14 +1,17 @@
 "use client";
 
 import { Bell, Search, Trophy } from "lucide-react";
+import { SsmContactButton } from "@/components/assigned-ssm";
 
 interface TopbarProps {
   xp?: number;
   ctaLabel?: string;
   rightSearch?: boolean;
+  /** Student pages: show the "Your SSM" contact button. */
+  studentSsmId?: string | null;
 }
 
-export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch }: TopbarProps) {
+export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch, studentSsmId }: TopbarProps) {
   return (
     <header className="h-[64px] bg-white border-b border-ngt-line flex items-center justify-between px-6 sticky top-0 z-30">
       {rightSearch ? (
@@ -26,6 +29,7 @@ export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch }:
       )}
 
       <div className="flex items-center gap-4">
+        {studentSsmId !== undefined && <SsmContactButton ssmId={studentSsmId ?? undefined} />}
         <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[12px] font-bold tracking-widest px-4 h-9 rounded-md transition">
           {ctaLabel}
         </button>
