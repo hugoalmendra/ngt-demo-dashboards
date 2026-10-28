@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { Check, ChevronDown, Copy, LifeBuoy, Mail, UserRound } from "lucide-react";
+import { Check, ChevronDown, Copy, Headset, LifeBuoy, Mail, UserRound } from "lucide-react";
 import { findSsm } from "@/lib/mock-data";
 import type { Ssm } from "@/lib/types";
 
@@ -198,13 +198,14 @@ export function SsmContactButton({ ssmId }: { ssmId?: string }) {
           open ? "border-ngt-yellow bg-ngt-yellow/10" : "border-ngt-line hover:border-ngt-yellow"
         )}
       >
-        {ssm ? (
-          <SsmAvatar ssm={ssm} size="md" />
-        ) : (
-          <span className="w-9 h-9 rounded-full grid place-items-center bg-ngt-bg text-ngt-muted">
-            <LifeBuoy size={15} />
-          </span>
-        )}
+        <span
+          className={clsx(
+            "w-9 h-9 rounded-full grid place-items-center",
+            ssm ? "bg-ngt-yellow/15 text-ngt-yellowDark" : "bg-ngt-bg text-ngt-muted"
+          )}
+        >
+          {ssm ? <Headset size={17} /> : <LifeBuoy size={15} />}
+        </span>
         <span className="text-left leading-tight">
           <span className="block whitespace-nowrap text-[9px] uppercase tracking-widest text-ngt-muted font-semibold">
             {ssm ? "Your SSM" : "Need help?"}

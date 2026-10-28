@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { ChevronRight, LifeBuoy, Mail, Menu, Sparkles, X } from "lucide-react";
+import { ChevronRight, Headset, LifeBuoy, Mail, Menu, Sparkles, X } from "lucide-react";
 import { findSsm } from "@/lib/mock-data";
 import { SsmAvatar, SsmContactBody, useDismiss } from "@/components/assigned-ssm";
 import { STUDENT_NAV } from "@/components/sidebar";
@@ -66,18 +66,13 @@ export function StudentMobileNav({ ssmId, studentName }: { ssmId?: string; stude
             onClick={() => setSheetOpen(true)}
             aria-label={ssm ? `Contact your SSM, ${ssm.name}` : "Get support"}
             aria-haspopup="dialog"
-            className="relative w-11 h-11 grid place-items-center"
+            className="w-10 h-10 grid place-items-center"
           >
             {ssm ? (
-              <span className="rounded-full ring-2 ring-ngt-yellow">
-                <SsmAvatar ssm={ssm} />
-              </span>
+              <Headset size={22} className="text-ngt-yellow" />
             ) : (
               <LifeBuoy size={22} className="text-white/60" />
             )}
-            <span className="absolute -bottom-0.5 -right-1 w-4 h-4 rounded-full bg-ngt-yellow text-black grid place-items-center ring-2 ring-ngt-ink">
-              <Mail size={9} strokeWidth={3} />
-            </span>
           </button>
           <span
             aria-label="AI assistant (production feature)"
