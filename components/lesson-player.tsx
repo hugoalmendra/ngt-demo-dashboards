@@ -18,7 +18,6 @@ import {
   FileText,
   Film,
   Maximize,
-  Mic,
   Network,
   NotebookPen,
   Paperclip,
@@ -35,6 +34,7 @@ import {
   type PlayerModule,
   type ResourceKind,
 } from "@/lib/lesson-player";
+import { CypherChat } from "@/components/cypher/cypher-chat";
 
 /*
  * Lesson player with resources shown next to each lesson.
@@ -191,7 +191,11 @@ export function LessonPlayer({ module, startLessonId }: { module: PlayerModule; 
               ))}
             </>
           )}
-          {panelTab === "cypher" && <CypherPanel />}
+          {panelTab === "cypher" && (
+            <div className="h-full">
+              <CypherChat compact />
+            </div>
+          )}
           {panelTab === "notes" && <NotesPanel />}
         </div>
       </aside>
@@ -629,38 +633,6 @@ function DetailsTab({ module }: { module: PlayerModule }) {
 /* ------------------------------------------------------------------ */
 /* Cypher + Notes (visual placeholders, as in production)              */
 /* ------------------------------------------------------------------ */
-
-function CypherPanel() {
-  const prompts = [
-    "When will I land an IT Job?",
-    "How much will I make when I finish the FSNE+CS program?",
-    "Which skill should I focus on first?",
-    "How many hours should I be studying each day?",
-  ];
-  return (
-    <div className="bg-white text-ngt-text min-h-full flex flex-col">
-      <div className="flex-1 px-4 py-8 text-center">
-        <div className="w-20 h-20 mx-auto rounded-full bg-ngt-yellow grid place-items-center">
-          <Sparkles size={34} className="text-black" />
-        </div>
-        <div className="text-2xl font-bold mt-4">Hi, I&apos;m Cypher</div>
-        <p className="text-[14px] text-ngt-muted mt-1">and I&apos;m here to help you level up your career!</p>
-        <div className="grid grid-cols-2 gap-2 mt-6">
-          {prompts.map((p) => (
-            <div key={p} className="border border-ngt-line rounded-md px-3 py-4 text-[13px] leading-snug">
-              {p}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="p-4 border-t border-ngt-line">
-        <div className="h-11 rounded-md border border-ngt-line px-3 flex items-center justify-between text-[14px] text-ngt-muted">
-          Ask me anything <Mic size={16} />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function NotesPanel() {
   const [note, setNote] = useState("");

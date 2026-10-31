@@ -8,6 +8,7 @@ import { ChevronRight, Headset, LifeBuoy, Mail, Menu, Sparkles, X } from "lucide
 import { findSsm } from "@/lib/mock-data";
 import { SsmAvatar, SsmContactBody, useDismiss } from "@/components/assigned-ssm";
 import { STUDENT_NAV } from "@/components/sidebar";
+import { CypherDrawer } from "@/components/cypher/cypher-chat";
 
 /**
  * Student header for phones, modelled on production: hamburger · logo · actions.
@@ -19,6 +20,8 @@ export function StudentMobileNav({ ssmId, studentName }: { ssmId?: string; stude
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [cypherOpen, setCypherOpen] = useState(false);
+  const closeCypher = useCallback(() => setCypherOpen(false), []);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const closeSheet = useCallback(() => setSheetOpen(false), []);
   useDismiss(menuOpen && !sheetOpen, closeMenu);
@@ -74,12 +77,14 @@ export function StudentMobileNav({ ssmId, studentName }: { ssmId?: string; stude
               <LifeBuoy size={22} className="text-white/60" />
             )}
           </button>
-          <span
-            aria-label="AI assistant (production feature)"
-            className="w-10 h-10 grid place-items-center text-white/60"
+          <button
+            type="button"
+            onClick={() => setCypherOpen(true)}
+            aria-label="Open Cypher"
+            className="w-10 h-10 grid place-items-center text-white/60 hover:text-white"
           >
             <Sparkles size={22} />
-          </span>
+          </button>
         </div>
       </header>
 
@@ -210,6 +215,9 @@ export function StudentMobileNav({ ssmId, studentName }: { ssmId?: string; stude
           </div>
         </div>
       )}
+      <div className="md:hidden">
+        <CypherDrawer open={cypherOpen} onClose={closeCypher} />
+      </div>
     </>
   );
 }

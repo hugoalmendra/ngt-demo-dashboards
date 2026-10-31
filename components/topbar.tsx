@@ -1,7 +1,9 @@
 "use client";
 
 import clsx from "clsx";
-import { Bell, Search, Trophy } from "lucide-react";
+import { useState } from "react";
+import { Bell, Search, Sparkles, Trophy } from "lucide-react";
+import { CypherDrawer } from "@/components/cypher/cypher-chat";
 import { SsmContactButton } from "@/components/assigned-ssm";
 
 interface TopbarProps {
@@ -14,7 +16,10 @@ interface TopbarProps {
 }
 
 export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch, studentSsmId, className }: TopbarProps) {
+  const [cypherOpen, setCypherOpen] = useState(false);
+  const student = studentSsmId !== undefined;
   return (
+    <>
     <header
       className={clsx(
         "h-[64px] bg-white border-b border-ngt-line flex items-center justify-between px-6 sticky top-0 z-30",
@@ -36,7 +41,7 @@ export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch, s
       )}
 
       <div className="flex items-center gap-4">
-        {studentSsmId !== undefined && <SsmContactButton ssmId={studentSsmId ?? undefined} />}
+        {student && <SsmContactButton ssmId={studentSsmId ?? undefined} />}
         <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[12px] font-bold tracking-widest px-4 h-9 rounded-md transition">
           {ctaLabel}
         </button>
@@ -45,6 +50,17 @@ export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch, s
           <span className="font-semibold text-ngt-text">{xp.toLocaleString("en-US")}</span>
           <span className="text-[11px] uppercase tracking-widest">XP</span>
         </div>
+        {student && (
+          <button
+            type="button"
+            onClick={() => setCypherOpen(true)}
+            aria-label="Open Cypher"
+            title="Cypher"
+            className="text-ngt-muted hover:text-ngt-text"
+          >
+            <Sparkles size={18} />
+          </button>
+        )}
         <button className="text-ngt-muted hover:text-ngt-text">
           <Bell size={18} />
         </button>
@@ -53,5 +69,7 @@ export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch, s
         </div>
       </div>
     </header>
+    {student && <CypherDrawer open={cypherOpen} onClose={() => setCypherOpen(false)} />}
+    </>
   );
 }
