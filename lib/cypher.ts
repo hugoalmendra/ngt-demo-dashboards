@@ -1,6 +1,8 @@
 // =====================================================================
 // Cypher (AI study assistant) — prototype data + daily message credits.
 // Production: credits are enforced server-side; this mirrors the UX only.
+// Every message the student sends uses a credit (typed, dictated or a
+// suggested question). There are no extra credits and no staff exemption.
 // =====================================================================
 
 export const CYPHER_DAILY_LIMIT = 5;
@@ -36,17 +38,37 @@ export interface CypherMessage {
   text: string;
 }
 
-/** Local calendar day, e.g. "2026-10-31". Credits reset when this changes. */
+/** Credits reset for everyone at midnight US Eastern (server time in production). */
+export const CYPHER_RESET_TZ = "America/New_York";
+
+/** Calendar day in the reset time zone, e.g. "2026-10-31". Credits reset when this changes. */
 export function todayKey(d = new Date()) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return new Intl.DateTimeFormat("en-CA", { timeZone: CYPHER_RESET_TZ }).format(d);
 }
 
-/** "5h 12m" until local midnight. */
-export function timeUntilReset(now = new Date()) {
-  const midnight = new Date(now);
-  midnight.setHours(24, 0, 0, 0);
-  const mins = Math.max(1, Math.ceil((midnight.getTime() - now.getTime()) / 60000));
+/** Minutes until the next midnight in the reset time zone. */
+function minutesUntilReset(now: Date) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: CYPHER_RESET_TZ,
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+  const elapsed = get("hour") * 3600 + get("minute") * 60 + get("second");
+  return Math.max(1, Math.ceil((86400 - elapsed) / 60));
+}
+
+/** Countdown ("5h 12m") and the reset moment in the student's own time ("9:00 PM"). */
+export function cypherReset(now = new Date()) {
+  const mins = minutesUntilReset(now);
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  const at = new Date(now.getTime() + mins * 60000);
+  at.setSeconds(0, 0);
+  return {
+    in: h > 0 ? `${h}h ${m}m` : `${m}m`,
+    at: at.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+  };
 }

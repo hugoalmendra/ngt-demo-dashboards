@@ -8,7 +8,7 @@ import {
   CYPHER_PROMPTS,
   type CypherMessage,
   cypherReply,
-  timeUntilReset,
+  cypherReset,
   todayKey,
 } from "@/lib/cypher";
 
@@ -75,13 +75,13 @@ export function CypherChat({ onClose, compact }: { onClose?: () => void; compact
   const { messages, left, update } = useCypher();
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
-  const [resetIn, setResetIn] = useState("");
+  const [reset, setReset] = useState<{ in: string; at: string } | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const outOfCredits = left === 0;
 
   useEffect(() => {
-    setResetIn(timeUntilReset());
-    const t = setInterval(() => setResetIn(timeUntilReset()), 30_000);
+    setReset(cypherReset());
+    const t = setInterval(() => setReset(cypherReset()), 30_000);
     return () => clearInterval(t);
   }, []);
 
@@ -192,7 +192,14 @@ export function CypherChat({ onClose, compact }: { onClose?: () => void; compact
             <Clock size={20} className="mx-auto text-ngt-muted" />
             <div className="font-bold text-[14px] mt-2">You&apos;ve used today&apos;s {CYPHER_DAILY_LIMIT} messages</div>
             <p className="text-[13px] text-ngt-muted mt-1">
-              Your credits reset at midnight{resetIn && <> · in {resetIn}</>}. You can still read this conversation.
+              {reset ? (
+                <>
+                  New messages at <span className="font-semibold text-ngt-text">{reset.at}</span> · in {reset.in}.
+                </>
+              ) : (
+                "New messages tomorrow."
+              )}{" "}
+              You can still read this conversation.
             </p>
             <p className="text-[12px] text-ngt-muted mt-2">
               Need help now? Reach out to your{" "}
