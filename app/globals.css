@@ -14,7 +14,7 @@
 [data-brand="iau"],
 [data-brand="iau"] .bg-white,
 [data-brand="iau"] .brand-solid {
-  --brand: 27 101 182;
+  --brand: 26 100 183;
   --brand-dark: 21 84 153;
   --on-brand: 255 255 255;
 }
@@ -39,7 +39,7 @@ html:not([data-brand="iau"]) .brand-iau-only {
 }
 
 /* Career pyramid artwork: gold faces → IAU blue (completed stages stay green). */
-[data-brand="iau"] [fill="#FFC507"] { fill: #1b65b6; }
+[data-brand="iau"] [fill="#FFC507"] { fill: #1a64b7; }
 [data-brand="iau"] [fill="#FFDE71"] { fill: #70b0f5; }
 [data-brand="iau"] [fill="#A8871B"] { fill: #154f8f; }
 
