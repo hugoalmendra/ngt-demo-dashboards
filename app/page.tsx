@@ -27,7 +27,7 @@ export default function Landing() {
             className="group bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg p-6 transition"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-md bg-ngt-yellow text-black grid place-items-center">
+              <div className="w-10 h-10 rounded-md bg-ngt-yellow text-ngt-onBrand grid place-items-center">
                 <Users size={20} />
               </div>
               <ArrowRight size={18} className="text-white/40 group-hover:text-ngt-yellow transition" />
@@ -47,7 +47,7 @@ export default function Landing() {
             className="group bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg p-6 transition"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-md bg-ngt-yellow text-black grid place-items-center">
+              <div className="w-10 h-10 rounded-md bg-ngt-yellow text-ngt-onBrand grid place-items-center">
                 <GraduationCap size={20} />
               </div>
               <ArrowRight size={18} className="text-white/40 group-hover:text-ngt-yellow transition" />
@@ -61,6 +61,12 @@ export default function Landing() {
               percentage actually means.
             </div>
           </Link>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-white/70">
+          <Link href="/login" className="hover:text-white underline underline-offset-4">Login / sign-up page</Link>
+          <Link href="/student?brand=ngt" className="hover:text-white underline underline-offset-4">Student view: NGT student</Link>
+          <Link href="/student?brand=iau" className="hover:text-white underline underline-offset-4">Student view: IAU student</Link>
         </div>
 
         <div className="mt-10 text-[11px] text-white/30 uppercase tracking-widest">

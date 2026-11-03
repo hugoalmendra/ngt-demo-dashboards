@@ -41,7 +41,7 @@ export default function StudentCareer() {
         </div>
         <Link
           href="/student/programs"
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand transition"
         >
           Continue learning <ArrowRight size={13} />
         </Link>

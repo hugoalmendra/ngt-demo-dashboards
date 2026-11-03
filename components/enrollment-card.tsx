@@ -67,7 +67,7 @@ export function EnrollmentCard({ enrollment, variant, defaultOpen = false }: Pro
           <div
             className={clsx(
               "w-10 h-10 rounded-md grid place-items-center shrink-0",
-              isCourse ? "bg-violet-50 text-violet-600" : "bg-amber-50 text-amber-700"
+              isCourse ? "bg-violet-50 text-violet-600" : "bg-ngt-yellow/10 text-ngt-yellowDark"
             )}
           >
             {isCourse ? <Library size={18} /> : <GraduationCap size={18} />}

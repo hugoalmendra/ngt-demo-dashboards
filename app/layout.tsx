@@ -1,5 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { BrandSync } from "@/components/brand";
+import { BRAND_INIT_SCRIPT } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "NGT.Academy — Dashboards Prototype",
@@ -8,8 +10,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: BRAND_INIT_SCRIPT }} />
+      </head>
+      <body>
+        <BrandSync />
+        {children}
+      </body>
     </html>
   );
 }

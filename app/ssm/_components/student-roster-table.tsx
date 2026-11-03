@@ -236,7 +236,7 @@ export function StudentRosterTable({
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          className="shrink-0 inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
+          className="shrink-0 inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand transition"
         >
           <UserPlus size={13} /> Add User
         </button>

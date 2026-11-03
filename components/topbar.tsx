@@ -42,7 +42,7 @@ export function Topbar({ xp = 60375, ctaLabel = "REPORT SUCCESS", rightSearch, s
 
       <div className="flex items-center gap-4">
         {student && <SsmContactButton ssmId={studentSsmId ?? undefined} />}
-        <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[12px] font-bold tracking-widest px-4 h-9 rounded-md transition">
+        <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[12px] font-bold tracking-widest px-4 h-9 rounded-md transition">
           {ctaLabel}
         </button>
         <div className="flex items-center gap-1 text-ngt-muted text-sm">

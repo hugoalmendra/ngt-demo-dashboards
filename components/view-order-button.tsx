@@ -36,7 +36,7 @@ export function ViewOrderButton({
           "inline-flex items-center gap-1.5 font-bold tracking-widest uppercase rounded-md transition",
           size === "sm" ? "text-[10px] px-2.5 h-7" : "text-[11px] px-3 h-9",
           variant === "yellow"
-            ? "bg-ngt-yellow hover:bg-ngt-yellowDark text-black"
+            ? "bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand"
             : "border border-ngt-yellow text-ngt-yellowDark hover:bg-ngt-yellow/10"
         )}
       >

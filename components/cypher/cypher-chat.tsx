@@ -129,7 +129,7 @@ export function CypherChat({ onClose, compact }: { onClose?: () => void; compact
         {messages.length === 0 ? (
           <div className="text-center">
             <div className="w-20 h-20 mx-auto rounded-full bg-ngt-yellow grid place-items-center">
-              <CypherLogo size={34} className="text-black" />
+              <CypherLogo size={34} className="text-ngt-onBrand" />
             </div>
             <div className="text-2xl font-bold mt-4">Hi, I&apos;m Cypher</div>
             <p className="text-[14px] text-ngt-muted mt-1">and I&apos;m here to help you level up your career!</p>
@@ -153,7 +153,7 @@ export function CypherChat({ onClose, compact }: { onClose?: () => void; compact
               <div key={m.id} className={clsx("flex", m.role === "user" ? "justify-end" : "justify-start gap-2")}>
                 {m.role === "cypher" && (
                   <span className="w-7 h-7 shrink-0 rounded-full bg-ngt-yellow grid place-items-center">
-                    <CypherLogo size={14} className="text-black" />
+                    <CypherLogo size={14} className="text-ngt-onBrand" />
                   </span>
                 )}
                 <div
@@ -169,7 +169,7 @@ export function CypherChat({ onClose, compact }: { onClose?: () => void; compact
             {typing && (
               <div className="flex gap-2" aria-label="Cypher is typing">
                 <span className="w-7 h-7 rounded-full bg-ngt-yellow grid place-items-center">
-                  <CypherLogo size={14} className="text-black" />
+                  <CypherLogo size={14} className="text-ngt-onBrand" />
                 </span>
                 <div className="bg-ngt-bg rounded-2xl rounded-bl-sm px-4 py-3 flex gap-1">
                   {[0, 1, 2].map((i) => (
@@ -226,7 +226,7 @@ export function CypherChat({ onClose, compact }: { onClose?: () => void; compact
                 type="submit"
                 disabled={typing}
                 aria-label="Send"
-                className="w-9 h-9 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-black grid place-items-center disabled:opacity-50"
+                className="w-9 h-9 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand grid place-items-center disabled:opacity-50"
               >
                 <ArrowUp size={16} />
               </button>

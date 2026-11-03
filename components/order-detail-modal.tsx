@@ -118,7 +118,7 @@ export function OrderDetailModal({ productName, status, order, onClose }: Props)
                           Refunded
                         </span>
                       ) : (
-                        <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold tracking-widest px-3 h-8 rounded-md">
+                        <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[11px] font-bold tracking-widest px-3 h-8 rounded-md">
                           REFUND
                         </button>
                       )}
@@ -170,7 +170,7 @@ export function OrderDetailModal({ productName, status, order, onClose }: Props)
                   "text-[10px] font-bold tracking-widest px-3 h-8 rounded",
                   order.balanceDue === 0
                     ? "bg-ngt-line text-ngt-muted cursor-not-allowed"
-                    : "bg-ngt-yellow hover:bg-ngt-yellowDark text-black"
+                    : "bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand"
                 )}
               >
                 PAY OFF REMAINING BALANCE

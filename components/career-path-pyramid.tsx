@@ -27,7 +27,7 @@ export function CareerPathPyramid({ initialStage = 1, currentStage, completedSta
           Your path from beginner to a high-income IT career
         </h2>
         <p className="text-[13px] text-white/60 mt-2 max-w-2xl">
-          NGT isn&apos;t just about helping you land your first job — it&apos;s about building a
+          This isn&apos;t just about helping you land your first job — it&apos;s about building a
           long-term career in tech, step by step.
         </p>
       </div>

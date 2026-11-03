@@ -272,7 +272,7 @@ function VideoStage({
           type="button"
           onClick={onTogglePlay}
           aria-label={playing ? "Pause" : "Play"}
-          className="w-12 h-9 rounded bg-ngt-yellow text-black grid place-items-center shrink-0"
+          className="w-12 h-9 rounded bg-ngt-yellow text-ngt-onBrand grid place-items-center shrink-0"
         >
           {playing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
         </button>
@@ -384,7 +384,7 @@ function LessonRow({
             className={clsx(
               "shrink-0 inline-flex items-center gap-1 h-6 px-2 rounded-full text-[11px] font-bold tabular-nums transition",
               filesOpen
-                ? "bg-ngt-yellow text-black"
+                ? "bg-ngt-yellow text-ngt-onBrand"
                 : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
             )}
           >
@@ -502,7 +502,7 @@ function ResourcesTab({
             <button
               type="button"
               onClick={() => onDownload(`${current.title} — ${current.resources.length} files (.zip)`)}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold uppercase tracking-widest"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[11px] font-bold uppercase tracking-widest"
             >
               <Download size={13} /> Download {current.resources.length} files
             </button>
@@ -658,7 +658,7 @@ function NotesPanel() {
         <button
           type="button"
           disabled={!note.trim()}
-          className="mt-2 h-9 px-5 rounded-md bg-ngt-yellow disabled:bg-ngt-line disabled:text-ngt-muted text-black text-[11px] font-bold uppercase tracking-widest"
+          className="mt-2 h-9 px-5 rounded-md bg-ngt-yellow disabled:bg-ngt-line disabled:text-ngt-muted text-ngt-onBrand text-[11px] font-bold uppercase tracking-widest"
         >
           Save note
         </button>

@@ -181,7 +181,7 @@ export function NoteComposer({
             type="button"
             onClick={submit}
             disabled={!canSubmit}
-            className="h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black disabled:bg-ngt-line disabled:text-ngt-muted"
+            className="h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand disabled:bg-ngt-line disabled:text-ngt-muted"
           >
             {submitLabel}
           </button>

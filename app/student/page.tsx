@@ -52,7 +52,7 @@ export default function StudentDashboard() {
           </div>
           <Link
             href="/learn"
-            className="hidden md:flex bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold tracking-widest px-4 h-10 rounded-md items-center gap-2"
+            className="hidden md:flex bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[11px] font-bold tracking-widest px-4 h-10 rounded-md items-center gap-2"
           >
             <BookOpen size={14} /> RESUME LEARNING
           </Link>

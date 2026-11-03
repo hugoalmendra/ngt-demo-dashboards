@@ -5,10 +5,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // NGT brand
+        // Brand colors are variables so IAU students get blue (see globals.css).
+        // "yellow" names the NGT default; it means "the brand accent".
         ngt: {
-          yellow: "#FFC107",
-          yellowDark: "#E0A800",
+          yellow: "rgb(var(--brand) / <alpha-value>)",
+          yellowDark: "rgb(var(--brand-dark) / <alpha-value>)",
+          onBrand: "rgb(var(--on-brand) / <alpha-value>)",
           ink: "#1B1F23",
           panel: "#252A30",
           slate: "#2F353C",

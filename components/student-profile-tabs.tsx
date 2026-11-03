@@ -237,7 +237,7 @@ function StudentIdentityCard({ s }: { s: Student }) {
         )}
         <button
           type="button"
-          className="w-full bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold tracking-widest h-9 rounded-md"
+          className="w-full bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[11px] font-bold tracking-widest h-9 rounded-md"
         >
           SEND EMAIL
         </button>
@@ -327,7 +327,7 @@ function ProductEnrollmentSection({ s }: { s: Student }) {
       </div>
       <button
         type="button"
-        className="mt-4 inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
+        className="mt-4 inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand transition"
       >
         <Plus size={13} /> Add-on Product (Sales)
       </button>
@@ -416,7 +416,7 @@ function AwardsSection() {
       </div>
       <button
         type="button"
-        className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black transition"
+        className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand transition"
       >
         <Award size={13} /> Issue Cert or Award
       </button>

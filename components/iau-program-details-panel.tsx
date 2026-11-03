@@ -189,7 +189,7 @@ export function IauProgramDetailsPanel({
             <button
               type="button"
               onClick={save}
-              className="h-8 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest inline-flex items-center gap-1.5 transition bg-ngt-yellow hover:bg-ngt-yellowDark text-black"
+              className="h-8 px-4 rounded-md text-[11px] font-bold uppercase tracking-widest inline-flex items-center gap-1.5 transition bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand"
             >
               <Check size={12} /> Save
             </button>

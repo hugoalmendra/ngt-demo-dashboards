@@ -259,7 +259,7 @@ export function AwardsLog() {
           type="button"
           onClick={exportCsv}
           disabled={rows.length === 0}
-          className="h-10 px-4 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold uppercase tracking-widest inline-flex items-center gap-1.5 disabled:bg-ngt-line disabled:text-ngt-muted"
+          className="h-10 px-4 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[11px] font-bold uppercase tracking-widest inline-flex items-center gap-1.5 disabled:bg-ngt-line disabled:text-ngt-muted"
         >
           <Download size={14} /> Export CSV
         </button>

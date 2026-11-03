@@ -203,7 +203,7 @@ export function ExtendDueDatesModal({ milestones, onClose }: Props) {
                     ? "bg-emerald-500 text-white cursor-default"
                     : totalChanges === 0
                     ? "bg-ngt-line text-ngt-muted cursor-not-allowed"
-                    : "bg-ngt-yellow hover:bg-ngt-yellowDark text-black"
+                    : "bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand"
                 )}
               >
                 {submitted ? (

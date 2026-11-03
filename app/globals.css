@@ -4,7 +4,47 @@
 
 :root {
   color-scheme: light;
+  /* Brand accent. NGT yellow by default. */
+  --brand: 255 193 7;
+  --brand-dark: 224 168 0;
+  --on-brand: 0 0 0;
 }
+
+/* IAU students: blue from the IAU logo, white text on it. */
+[data-brand="iau"],
+[data-brand="iau"] .bg-white,
+[data-brand="iau"] .brand-solid {
+  --brand: 27 101 182;
+  --brand-dark: 21 84 153;
+  --on-brand: 255 255 255;
+}
+
+/* Logo blue is too dark to read on dark surfaces: use a lighter tint there. */
+[data-brand="iau"] .bg-ngt-ink,
+[data-brand="iau"] .bg-ngt-ink\/95,
+[data-brand="iau"] .bg-\[\#2F353C\],
+[data-brand="iau"] .bg-\[\#0B1B35\],
+[data-brand="iau"] .bg-\[\#0a1628\],
+[data-brand="iau"] .bg-\[\#081528\],
+[data-brand="iau"] .from-\[\#0b1b35\] {
+  --brand: 112 176 245;
+  --brand-dark: 147 197 250;
+  --on-brand: 11 27 53;
+}
+
+/* Elements only one brand should see. CSS, so the right one shows before JS runs. */
+[data-brand="iau"] .brand-ngt-only,
+html:not([data-brand="iau"]) .brand-iau-only {
+  display: none !important;
+}
+
+/* Career pyramid artwork: gold faces → IAU blue (completed stages stay green). */
+[data-brand="iau"] [fill="#FFC507"] { fill: #1b65b6; }
+[data-brand="iau"] [fill="#FFDE71"] { fill: #70b0f5; }
+[data-brand="iau"] [fill="#A8871B"] { fill: #154f8f; }
+
+/* Avatars in the amber slot read as NGT yellow. */
+[data-brand="iau"] .bg-amber-500 { background-color: rgb(var(--brand)); }
 
 html, body {
   height: 100%;

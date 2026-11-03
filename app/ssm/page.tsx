@@ -130,7 +130,7 @@ export default function SsmDashboard() {
                 </div>
                 <Link
                   href={`/ssm/students/${s.id}`}
-                  className="text-[11px] font-semibold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-black px-3 h-8 rounded-md flex items-center gap-1"
+                  className="text-[11px] font-semibold uppercase tracking-widest bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand px-3 h-8 rounded-md flex items-center gap-1"
                 >
                   Open <ArrowRight size={12} />
                 </Link>

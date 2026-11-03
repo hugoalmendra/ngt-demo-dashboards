@@ -8,6 +8,7 @@ import { ChevronRight, Headset, LifeBuoy, Mail, Menu, Sparkles, X } from "lucide
 import { findSsm } from "@/lib/mock-data";
 import { SsmAvatar, SsmContactBody, useDismiss } from "@/components/assigned-ssm";
 import { STUDENT_NAV } from "@/components/sidebar";
+import { BrandPreviewSwitch, PoweredByNgt, StudentBrandMark } from "@/components/brand";
 import { CypherDrawer } from "@/components/cypher/cypher-chat";
 
 /**
@@ -44,11 +45,9 @@ export function StudentMobileNav({ ssmId, studentName }: { ssmId?: string; stude
   }, [menuOpen, sheetOpen]);
 
   const logo = (
-    <img
-      src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/ngt-icon.png`}
-      alt="NGT.Academy"
-      className="w-10 h-10 object-contain"
-    />
+    <span className="h-10 grid place-items-center">
+      <StudentBrandMark />
+    </span>
   );
 
   return (
@@ -174,10 +173,16 @@ export function StudentMobileNav({ ssmId, studentName }: { ssmId?: string; stude
           <div className="px-5 py-5 mt-auto">
             <button
               type="button"
-              className="w-full h-12 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-black font-bold"
+              className="brand-solid w-full h-12 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand font-bold"
             >
               Report Success
             </button>
+            <div className="brand-iau-only mt-4">
+              <PoweredByNgt className="justify-center" />
+            </div>
+            <div className="mt-4">
+              <BrandPreviewSwitch />
+            </div>
           </div>
         </div>
       )}

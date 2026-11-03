@@ -40,7 +40,7 @@ export function ProgramTree({ program, friendly, learnable }: Props) {
     <div className="bg-white border border-ngt-line rounded-lg shadow-card overflow-hidden">
       {/* PROGRAM ROW */}
       <div className="px-5 py-4 bg-ngt-ink text-white flex items-center gap-4">
-        <div className="w-10 h-10 rounded-md bg-ngt-yellow text-black grid place-items-center">
+        <div className="w-10 h-10 rounded-md bg-ngt-yellow text-ngt-onBrand grid place-items-center">
           <GraduationCap size={20} />
         </div>
         <div className="flex-1 min-w-0">
@@ -80,7 +80,7 @@ export function ProgramTree({ program, friendly, learnable }: Props) {
                     size={16}
                     className={clsx("text-ngt-muted transition-transform", open && "rotate-90")}
                   />
-                  <div className="w-8 h-8 rounded bg-amber-50 text-amber-600 grid place-items-center">
+                  <div className="w-8 h-8 rounded bg-ngt-yellow/10 text-ngt-yellowDark grid place-items-center">
                     <BookOpen size={15} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -153,7 +153,7 @@ function CourseAction({ pct, courseName }: { pct: number; courseName: string }) 
         "[@media(hover:none)]:opacity-100 [@media(hover:none)]:pointer-events-auto",
         done
           ? "bg-white border border-ngt-line text-ngt-muted hover:border-ngt-yellow hover:text-ngt-text"
-          : "bg-ngt-yellow hover:bg-ngt-yellowDark text-black"
+          : "bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand"
       )}
     >
       {done ? <RotateCcw size={12} /> : <Play size={12} fill="currentColor" />}

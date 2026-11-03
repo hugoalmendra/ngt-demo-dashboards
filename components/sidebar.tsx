@@ -17,6 +17,7 @@ import {
   NotebookPen,
 } from "lucide-react";
 import clsx from "clsx";
+import { BrandPreviewSwitch, StudentBrandLogo } from "@/components/brand";
 
 type NavItem = { href: string; label: string; icon: React.ReactNode };
 
@@ -53,14 +54,20 @@ export function Sidebar({ variant }: { variant: "ssm" | "student" }) {
       )}
     >
       <div className="px-5 py-5 flex items-center gap-2 border-b border-white/5">
-        <Link href="/" className="flex items-center gap-2">
-          <img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/ngt-icon.png`} alt="NGT.Academy" className="w-9 h-9 object-contain" />
-          <div className="leading-tight">
-            <div className="font-bold text-sm tracking-wide">NGT.ACADEMY</div>
-            <div className="text-[10px] uppercase tracking-widest text-white/40">
-              {variant === "ssm" ? "Internal · SSM" : "Student"}
+        <Link href="/" className="flex items-center gap-2 w-full">
+          {variant === "student" ? (
+            <div className="w-full">
+              <StudentBrandLogo />
             </div>
-          </div>
+          ) : (
+            <>
+              <img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/ngt-icon.png`} alt="NGT.Academy" className="w-9 h-9 object-contain" />
+              <div className="leading-tight">
+                <div className="font-bold text-sm tracking-wide">NGT.ACADEMY</div>
+                <div className="text-[10px] uppercase tracking-widest text-white/40">Internal · SSM</div>
+              </div>
+            </>
+          )}
         </Link>
       </div>
 
@@ -68,6 +75,7 @@ export function Sidebar({ variant }: { variant: "ssm" | "student" }) {
         {nav.map((item) => {
           const active =
             pathname === item.href ||
+            pathname === `${item.href}/` ||
             (item.href !== "/ssm" && item.href !== "/student" && pathname.startsWith(item.href));
           return (
             <Link
@@ -101,7 +109,8 @@ export function Sidebar({ variant }: { variant: "ssm" | "student" }) {
         </div>
       )}
 
-      <div className="mt-2 mb-4 px-5 flex flex-col gap-2">
+      <div className="mt-2 mb-4 px-5 flex flex-col gap-3">
+        {variant === "student" && <BrandPreviewSwitch />}
         <Link
           href={variant === "ssm" ? "/student" : "/ssm"}
           className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-widest text-white/40 hover:text-white border border-white/10 rounded px-2 py-2"

@@ -79,7 +79,7 @@ export function StudentSsmCard({ ssmId }: { ssmId?: string }) {
           </div>
           <a
             href={`mailto:${ssm.email}`}
-            className="shrink-0 inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold uppercase tracking-widest"
+            className="shrink-0 inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[11px] font-bold uppercase tracking-widest"
           >
             <Mail size={13} /> Email
           </a>
@@ -136,7 +136,7 @@ export function SsmContactBody({ ssmId, large }: { ssmId?: string; large?: boole
         <a
           href={`mailto:${ssm.email}`}
           className={clsx(
-            "flex-1 inline-flex items-center justify-center gap-1.5 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-black font-bold uppercase tracking-widest",
+            "flex-1 inline-flex items-center justify-center gap-1.5 rounded-md bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand font-bold uppercase tracking-widest",
             btn
           )}
         >

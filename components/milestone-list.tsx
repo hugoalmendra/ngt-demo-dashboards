@@ -180,7 +180,7 @@ function StudentActions({ status }: { status: MilestoneStatus }) {
             Accepted: pdf, png, jpg, mp4, zip, docx, pka, pkt…
           </div>
         </div>
-        <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold tracking-widest px-4 h-9 rounded-md">
+        <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[11px] font-bold tracking-widest px-4 h-9 rounded-md">
           {label}
         </button>
       </div>
@@ -217,7 +217,7 @@ function SsmActions({ status }: { status: MilestoneStatus }) {
         <button className="bg-white/10 hover:bg-white/15 text-white text-[11px] font-bold tracking-widest px-4 h-9 rounded-md">
           CANCEL
         </button>
-        <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-black text-[11px] font-bold tracking-widest px-4 h-9 rounded-md">
+        <button className="bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand text-[11px] font-bold tracking-widest px-4 h-9 rounded-md">
           SAVE
         </button>
       </div>

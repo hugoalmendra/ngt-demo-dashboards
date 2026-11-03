@@ -411,7 +411,7 @@ export function AddUserModal({ onClose, onCreate }: Props) {
                 ? "bg-emerald-500 text-white cursor-default"
                 : !isValid
                 ? "bg-ngt-line text-ngt-muted cursor-not-allowed"
-                : "bg-ngt-yellow hover:bg-ngt-yellowDark text-black"
+                : "bg-ngt-yellow hover:bg-ngt-yellowDark text-ngt-onBrand"
             )}
           >
             {submitted ? (
